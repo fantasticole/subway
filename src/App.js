@@ -1,24 +1,16 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {fetchSubwayApi} from "./utils/subway_apis";
 
 import './App.css';
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {apiResponse: ""};
-  }
+function App() {
+  const [res, setRes] = useState("");
 
-  callAPI() {
+  useEffect(() => {
     fetchSubwayApi()
-      .then(res => this.setState({ apiResponse: res }));
-  }
+      .then(res => setRes(res));
+  });
 
-  componentDidMount() {
-    this.callAPI();
-  }
-
-  render() {
     return (
       <div className="App">
         <header className="App-header">
@@ -26,7 +18,6 @@ class App extends React.Component {
         </header>
       </div>
     );
-  }
 }
 
 export default App;
