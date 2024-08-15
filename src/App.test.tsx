@@ -8,6 +8,12 @@ test('renders base API response', () => {
   expect(baseApiResponse).toBeInTheDocument();
 });
 
+test('renders nearby stations updated time', () => {
+  render(<App />);
+  const baseApiResponse = screen.getByText("updated:");
+  expect(baseApiResponse).toBeInTheDocument();
+});
+
 test('renders nearby stations API response', () => {
   render(<App />);
   const baseApiResponse = screen.getByText("nearby:");
