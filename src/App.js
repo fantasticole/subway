@@ -1,4 +1,5 @@
 import React from "react";
+import {fetchSubwayApi} from "./utils/subway_apis";
 
 import './App.css';
 
@@ -9,8 +10,7 @@ class App extends React.Component {
   }
 
   callAPI() {
-    fetch("http://127.0.0.1:5000")
-      .then(res => res.text())
+    fetchSubwayApi()
       .then(res => this.setState({ apiResponse: res }));
   }
 
