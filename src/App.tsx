@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {fetchSubwayApi, fetchNearestStations} from "./utils/subway_apis";
 
 import './App.css';
@@ -21,8 +20,8 @@ function App() {
     return (
       <div className="App">
         <header className="App-header">
-          <p>res: {res}</p>
-          <p>res: {nearest}</p>
+          <p className="basic">res: {res}</p>
+          <p className="stations">nearby: {nearest}</p>
         </header>
       </div>
     );

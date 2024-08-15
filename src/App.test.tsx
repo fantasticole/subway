@@ -2,8 +2,14 @@ import React from "react";
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders base API response', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const baseApiResponse = screen.getByText("res:");
+  expect(baseApiResponse).toBeInTheDocument();
+});
+
+test('renders nearby stations API response', () => {
+  render(<App />);
+  const baseApiResponse = screen.getByText("nearby:");
+  expect(baseApiResponse).toBeInTheDocument();
 });
