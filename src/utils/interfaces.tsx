@@ -17,7 +17,7 @@ export interface Station {
   S: Stop[];
   routes: string[]; // list of train name strings
   last_update: Date,
-  id: string;
+    id: string;
   location: Location;
   name: string; // station name
   stops: Stops;

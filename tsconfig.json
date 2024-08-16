@@ -1,5 +1,6 @@
 {
-  "compilerOptions": {
+  "compilerOptions":
+  {
     "target": "es2017",
     "types": ["node", "jest"],
     "allowJs": true,
@@ -15,7 +16,7 @@
     "baseUrl": ".",
     "noFallthroughCasesInSwitch": true,
     "outDir": "./dist",
-    "jsx":"react",
+    "jsx": "react",
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
