@@ -1,5 +1,7 @@
 export interface Stop {
-  route: string; // train name string
+  // train name string, e.g. "L"
+  route: string;
+  // e.g. "2024-08-15T17:33:33-04:00"
   time: Date;
 }
 
@@ -9,17 +11,21 @@ export type Location = [
 ]
 
 export interface Stops {
+  // L08 for "Bedford Av" as station_id
   [station_id: string]: Location;
 }
 
 export interface Station {
   N: Stop[];
   S: Stop[];
-  routes: string[]; // list of train name strings
-  last_update: Date,
-    id: string;
+  // list of train name strings e.g. [ "L", "G" ]
+  routes: string[];
+  last_update: Date;
+  // same as station_id above, e.g. L08
+  id: string;
   location: Location;
-  name: string; // station name
+  // station name, e.g. "Bedford Av"
+  name: string;
   stops: Stops;
 }
 
