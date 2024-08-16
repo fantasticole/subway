@@ -25,12 +25,12 @@ function App() {
     return (
       <div className="App">
         <header className="App-header">
-          <p className="updated">updated: {JSON.stringify(updated)}</p>
+          <p data-testid="updated">updated: {JSON.stringify(updated)}</p>
           {nearest?.map((station, i) => (
-            <div className="station" id="i">
-              <p className="name">name: {station.name} ({station.id})</p>
-              <p className="routes">routes: {JSON.stringify(station.routes)}</p>
-              <p className="location">location: {JSON.stringify(station.location)}</p>
+            <div data-testid="station" key={i}>
+              <p data-testid="name">name: {station.name} ({station.id})</p>
+              <p data-testid="routes">routes: {JSON.stringify(station.routes)}</p>
+              <p data-testid="location">location: {JSON.stringify(station.location)}</p>
               {/* Add northbound & southbound trains */}
             </div>
             ))}

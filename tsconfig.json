@@ -1,13 +1,30 @@
 {
   "compilerOptions": {
-    "module": "system",
+    "target": "es2017",
+    "types": ["node", "jest"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "noFallthroughCasesInSwitch": true,
+    "outDir": "./dist",
+    "jsx":"react",
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "outFile": "../../built/local/tsc.js",
     "sourceMap": true,
-    "moduleResolution":"nodenext",
-    "jsx":"react",
+    "lib": ["dom"]
   },
-  "include": ["src/**/*"],
+  "compileOnSave": true,
+  "include": ["."]
 }
+
+// from https://swizec.com/blog/how-to-configure-jest-with-typescript/
