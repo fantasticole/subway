@@ -1,42 +1,42 @@
-import { Station, StationList } from "./interfaces";
+import { Station, StationList, Route } from "./interfaces";
 
 export const MOCK_STATION: Station = {
   N: [{
-      route: "L",
+      route: Route.L,
       time: new Date("2024-08-15T17:30:23-04:00")
     },
     {
-      route: "L",
+      route: Route.L,
       time: new Date("2024-08-15T17:33:33-04:00")
     },
     {
-      route: "L",
+      route: Route.L,
       time: new Date("2024-08-15T17:39:12-04:00")
     },
     {
-      route: "L",
+      route: Route.L,
       time: new Date("2024-08-15T17:41:18-04:00")
     },
   ],
   S: [{
-      route: "L",
+      route: Route.L,
       time: new Date("2024-08-15T17:32:31-04:00")
     },
     {
-      route: "L",
+      route: Route.L,
       time: new Date("2024-08-15T17:35:09-04:00")
     },
     {
-      route: "L",
+      route: Route.L,
       time: new Date("2024-08-15T17:39:15-04:00")
     },
     {
-      route: "L",
+      route: Route.L,
       time: new Date("2024-08-15T17:42:45-04:00")
     },
   ],
   routes: [
-    "L"
+    Route.L
   ],
   last_update: new Date("2024-08-15T17:29:47-04:00"),
   id: "L08",
@@ -52,7 +52,6 @@ export const MOCK_STATION: Station = {
     ]
   }
 }
-
 
 export const MOCK_STATION_LIST: StationList = {
   data: [MOCK_STATION],
