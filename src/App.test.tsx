@@ -6,35 +6,40 @@ import { describe, expect, test } from '@jest/globals';
 
 import App from './App';
 
-import { MOCK_STATION_LIST } from './utils/mock_data';
+import {
+  fetchRoute,
+  fetchRoutes,
+} from "./utils/subway_apis";
+import { MOCK_STATION_LIST, MOCK_ROUTE_LIST } from './utils/mock_data';
+import mockSubwayApis from './utils/mock_subway_apis';
 
 beforeEach(() => {
-  global.fetch = window.fetch;
-
-  global.fetch = jest.fn(() => Promise.resolve({
-    text: () => (JSON.stringify(MOCK_STATION_LIST)),
-  })) as jest.Mock;
+  const spy = jest.spyOn(global, 'fetch').mockImplementation(mockSubwayApis);
 });
 
 afterEach(cleanup);
 
-test('calls nearby stations API', async () => {
+test('calls routes API', async () => {
   await waitFor(() => render(<App />));
-  expect(fetch).toHaveBeenCalledTimes(1);
+
+  expect(global.fetch).toHaveBeenCalledTimes(2);
 });
 
-test('renders nearby stations updated time', async () => {
-  await waitFor(() => render(<App />));
+test('renders route list', async () => {
+  render(<App />)
 
-  const baseApiResponse = screen.getByTestId("updated");
-  expect(baseApiResponse).toBeInTheDocument();
+  await waitFor(() => {
+    const stations = screen.getAllByTestId("route");
+    expect(stations.length).toBe(MOCK_ROUTE_LIST.data.length);
+  });
 });
 
-test('renders nearby stations', async () => {
+test('renders stations along route updated time ', async () => {
   await waitFor(() => render(<App />));
 
-  const station = screen.getByTestId("station");
-  expect(station).toBeInTheDocument();
+  const mockTime = MOCK_STATION_LIST.updated.toString();
+  const updatedTime = screen.getByText(`updated: ${mockTime}`);
+  expect(updatedTime).toBeInTheDocument();
 });
 
 describe('stations', () => {
