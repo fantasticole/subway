@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 
 import React from "react";
-import { render, cleanup, screen, waitFor } from '@testing-library/react';
+import { render, cleanup, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, test } from '@jest/globals';
 
 import App from './App';
@@ -29,8 +29,10 @@ test('renders route list', async () => {
   render(<App />)
 
   await waitFor(() => {
-    const stations = screen.getAllByTestId("route");
-    expect(stations.length).toBe(MOCK_ROUTE_LIST.data.length);
+    const routeList = screen.getByTestId("route-list");
+    const routes = within(routeList).getAllByTestId("route");
+    expect(routeList).toBeInTheDocument();
+    expect(routes.length).toBe(MOCK_ROUTE_LIST.data.length);
   });
 });
 
@@ -55,11 +57,5 @@ describe('stations', () => {
   test('renders nearby station routes', async () => {
     const routes = screen.getByTestId("routes");
     expect(routes).toBeInTheDocument();
-  });
-
-
-  test('renders nearby station locations', async () => {
-    const location = screen.getByTestId("location");
-    expect(location).toBeInTheDocument();
   });
 });

@@ -1,0 +1,4 @@
+.stations {
+  display: flex;
+  flex-wrap: wrap;
+}

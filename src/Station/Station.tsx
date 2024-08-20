@@ -1,13 +1,26 @@
 import React from "react";
 
-import { Station as StationData } from "../utils/interfaces";
+import { Station as StationData, Route as RouteData } from "../utils/interfaces";
 
-function Station({ stationData }: { stationData: StationData }) {
+import Route from "../Route/Route";
+
+import './Station.css';
+
+interface StationParams {
+  station: StationData;
+}
+
+function Station({ station }: StationParams) {
   return (
-    <div data-testid="station">
-      <p data-testid="name">name: {stationData.name} ({stationData.id})</p>
-      <p data-testid="routes">routes: {JSON.stringify(stationData.routes)}</p>
-      <p data-testid="location">location: {JSON.stringify(stationData.location)}</p>
+    <div data-testid="station" className="station">
+      <h3 data-testid="name" className="name">
+        {station.name} ({station.id})
+      </h3>
+      <div data-testid="routes" className="routes">
+        {station.routes?.map((route: RouteData, i: number) => (
+          <Route route={route} key={i} />
+          ))}
+      </div>
       {/* Add northbound & southbound trains */}
     </div>
   );

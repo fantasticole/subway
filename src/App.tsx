@@ -16,14 +16,12 @@ function App() {
   const [updated, setUpdated] = useState < string > ();
   const [route, setRoute] = useState < StationData[] > ();
   const [routes, setRoutes] = useState < RouteData[] > ();
-  const [selectedRoute, setSelectedRoute] = useState < RouteData > (RouteData.SS);
-
+  const [selectedRoute, setSelectedRoute] = useState < RouteData > (RouteData.A);
 
   useEffect(() => {
     if (getRoutes) {
       // fetch all routes
       fetchRoutes()
-        // .then(res => setRoutes(res ? res.data : []));
         .then(res => {
           if (res) {
             setRoutes(res ? res.data : []);
@@ -46,16 +44,20 @@ function App() {
     <div className="App">
         <h1>SUBWAY</h1>
         <h2>All routes</h2>
-        {routes?.map((route: RouteData, i: number) => (
-          <Route route={route}
-                 key={i}
-                 onClick={() => setSelectedRoute(route)} />
-          ))}
+        <span data-testid="route-list">
+          {routes?.map((route: RouteData, i: number) => (
+            <Route route={route}
+                   key={i}
+                   onClick={() => setSelectedRoute(route)} />
+            ))}
+        </span>
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>
-        {route?.map((station: StationData, i: number) => (
-          <Station stationData={station} key={i} />
-          ))}
+        <span data-testid="station-list" className="stations">
+          {route?.map((station: StationData, i: number) => (
+            <Station station={station} key={i} />
+            ))}
+        </span>
     </div>
   );
 }
