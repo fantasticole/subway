@@ -1,20 +1,23 @@
 .station {
   border: 1px solid grey;
   display: flex;
-  flex: 1;
   flex-direction: column;
   min-width: 20em;
   padding: 10px;
-
-  .name,
-  .routes,
-  .location {
-    flex: 1;
-  }
 
   .name {
     border-bottom: 1px solid grey;
     padding-bottom: 1em;
     margin: 0.5em 0;
+  }
+
+  .stop {
+    font-weight: 400;
+    font-size: 0.8em;
+
+    .route {
+      font-size: 10px;
+      display: inline-flex;
+    }
   }
 }

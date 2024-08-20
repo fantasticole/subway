@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Station as StationData, Route as RouteData } from "../utils/interfaces";
+import { Stop, Station as StationData, Route as RouteData } from "../utils/interfaces";
 
 import Route from "../Route/Route";
 
@@ -11,17 +11,37 @@ interface StationParams {
 }
 
 function Station({ station }: StationParams) {
+  function getTime(time: Date) {
+    const timeDate = new Date(time);
+    return `${timeDate.getHours()}:${timeDate.getMinutes()}:${timeDate.getSeconds()}`;
+  }
+
   return (
     <div data-testid="station" className="station">
       <h3 data-testid="name" className="name">
         {station.name} ({station.id})
       </h3>
       <div data-testid="routes" className="routes">
-        {station.routes?.map((route: RouteData, i: number) => (
+        {station.routes.map((route: RouteData, i: number) => (
           <Route route={route} key={i} />
           ))}
       </div>
-      {/* Add northbound & southbound trains */}
+      <div data-testid="north" className="north">
+        <h4>NORTH</h4>
+        {station.N.map((stop: Stop, i: number) => (
+          <p key={i} className="stop" data-testid="stop">
+            <Route route={stop.route} /> {getTime(stop.time)}
+          </p>
+          ))}
+      </div>
+      <div data-testid="south" className="south">
+        <h4>SOUTH</h4>
+        {station.S.map((stop: Stop, i: number) => (
+          <p key={i} className="stop" data-testid="stop">
+            <Route route={stop.route} /> {getTime(stop.time)}
+          </p>
+          ))}
+      </div>
     </div>
   );
 }
