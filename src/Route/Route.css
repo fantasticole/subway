@@ -1,12 +1,19 @@
 .route {
   border: none;
   border-radius: 20px;
-  cursor: pointer;
+  box-sizing: border-box;
   display: inline-flex;
+  /*  standardize icon size*/
+  font-size: 14px;
   height: 2.2em;
   justify-content: center;
   margin: 5px;
+  text-align: center;
   width: 2.2em;
+}
+
+button.route {
+  cursor: pointer;
 }
 
 span {
@@ -15,5 +22,4 @@ span {
   font-size: 1.2em;
   font-weight: 550;
   flex: 1 1;
-  padding-top: 0.1em;
 }
