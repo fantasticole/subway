@@ -1,4 +1,4 @@
-import { Station, StationList, Route } from "./interfaces";
+import { Station, StationList, Route, RouteList } from "./interfaces";
 
 export const MOCK_STATION: Station = {
   N: [{
@@ -56,4 +56,40 @@ export const MOCK_STATION: Station = {
 export const MOCK_STATION_LIST: StationList = {
   data: [MOCK_STATION],
   updated: new Date("2024-08-15T17:29:41-04:00")
+}
+
+export const MOCK_ROUTES: Route[] = [
+  Route.ONE,
+  Route.TWO,
+  Route.THREE,
+  Route.FOUR,
+  Route.FIVE,
+  Route.SIX,
+  Route.SIXX,
+  Route.SEVEN,
+  Route.SEVENX,
+  Route.A,
+  Route.B,
+  Route.C,
+  Route.D,
+  Route.E,
+  Route.F,
+  Route.FS,
+  Route.G,
+  Route.H,
+  Route.J,
+  Route.L,
+  Route.M,
+  Route.N,
+  Route.Q,
+  Route.R,
+  Route.S,
+  Route.SI,
+  Route.W,
+  Route.Z,
+];
+
+export const MOCK_ROUTE_LIST: RouteList = {
+  data: MOCK_ROUTES,
+  updated: new Date("2024-07-15T17:29:41-04:00")
 }

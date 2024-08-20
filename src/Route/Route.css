@@ -1,16 +1,19 @@
 .route {
+  border: none;
   border-radius: 20px;
+  cursor: pointer;
   display: inline-flex;
   height: 2.2em;
+  justify-content: center;
   margin: 5px;
   width: 2.2em;
 }
 
 span {
+  align-self: center;
   font-family: 'Helvetica', 'Arial', sans-serif;
   font-size: 1.2em;
   font-weight: 550;
   flex: 1 1;
-  line-height: 1.9em;
-  text-align: center;
+  padding-top: 0.1em;
 }

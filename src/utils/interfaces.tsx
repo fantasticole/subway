@@ -64,6 +64,7 @@ export enum Route {
     E = "E",
     F = "F",
     FS = "FS", // Franklin Ave S
+    FX = "FX", // Franklin Ave S
     G = "G",
     H = "H", // Far Rockaway S
     J = "J",
@@ -74,6 +75,7 @@ export enum Route {
     R = "R",
     S = "S",
     SI = "SI", // Staten Island Rail
+    SS = "SS", // Staten Island Rail
     W = "W",
     Z = "Z",
 }
@@ -111,6 +113,7 @@ export const TrainColorMap: Record < Route, Color > = {
   [Route.E]: Color.BLUE,
   [Route.F]: Color.ORANGE,
   [Route.FS]: Color.SLATE,
+  [Route.FX]: Color.ORANGE,
   [Route.G]: Color.GREEN,
   [Route.H]: Color.SLATE,
   [Route.J]: Color.BROWN,
@@ -121,6 +124,7 @@ export const TrainColorMap: Record < Route, Color > = {
   [Route.R]: Color.YELLOW,
   [Route.S]: Color.SLATE,
   [Route.SI]: Color.SEA,
+  [Route.SS]: Color.SEA,
   [Route.W]: Color.YELLOW,
   [Route.Z]: Color.BROWN,
 };
