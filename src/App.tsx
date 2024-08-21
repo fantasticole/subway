@@ -56,7 +56,8 @@ function App() {
                    onClick={() => setSelectedRoute(route)} />
             ))}
         </span>
-        <Map highlights={generateHighlights(route)} />
+        <Map selectedRoute={selectedRoute}
+             highlights={generateHighlights(route)} />
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>
         <span data-testid="station-list" className="stations">
