@@ -11,9 +11,21 @@
     margin: 0.5em 0;
   }
 
+  .list {
+    max-height: 15em;
+    overflow: scroll;
+  }
+
   .stop {
-    font-weight: 400;
+    background-color: rgb(128 128 128 / 20%);
     font-size: 0.8em;
+    font-weight: 400;
+    margin: 0;
+    padding: 0.2em;
+
+    &:nth-child(even) {
+      background-color: rgb(128 128 128 / 40%);
+    }
 
     .route {
       font-size: 10px;

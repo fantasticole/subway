@@ -28,19 +28,23 @@ function Station({ station }: StationParams) {
       </div>
       <div data-testid="north" className="north">
         <h4>NORTH</h4>
-        {station.N.map((stop: Stop, i: number) => (
-          <p key={i} className="stop" data-testid="stop">
-            <Route route={stop.route} /> {getTime(stop.time)}
-          </p>
-          ))}
+        <div className="list">
+          {station.N.map((stop: Stop, i: number) => (
+            <p key={i} className="stop" data-testid="stop">
+              <Route route={stop.route} /> {getTime(stop.time)}
+            </p>
+            ))}
+        </div>
       </div>
       <div data-testid="south" className="south">
         <h4>SOUTH</h4>
-        {station.S.map((stop: Stop, i: number) => (
-          <p key={i} className="stop" data-testid="stop">
-            <Route route={stop.route} /> {getTime(stop.time)}
-          </p>
-          ))}
+        <div className="list">
+          {station.S.map((stop: Stop, i: number) => (
+            <p key={i} className="stop" data-testid="stop">
+              <Route route={stop.route} /> {getTime(stop.time)}
+            </p>
+            ))}
+        </div>
       </div>
     </div>
   );
