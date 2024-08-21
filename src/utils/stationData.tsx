@@ -18,7 +18,6 @@ export const LON_DIFF = 0.4965559999999982;
 /* Calculate latitude based on map height */
 export function calculateLatitude(mapHeight: number, latitude: number) {
 	const scale = mapHeight / LAT_DIFF;
-	const diff = (latitude - LOWEST_LAT);
 	return (latitude - LOWEST_LAT) * scale;
 }
 
@@ -28,7 +27,8 @@ export function calculateLongitude(mapWidth: number, longitude: number) {
 	return (longitude - LOWEST_LON) * scale;
 }
 
-function getStationEdges() {
+/* Calculate max and min lat and lon from station list */
+export function getStationEdges() {
 	const allLocations = Object.values(allStations).map(({ location }) => location);
 	const allLats = allLocations.map(([latitude]) => latitude);
 	const allLons = allLocations.map(([, longitude]) => longitude);
