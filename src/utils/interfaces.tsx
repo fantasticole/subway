@@ -20,18 +20,22 @@ export interface Stops {
 }
 
 /* Summary data about a subway station */
-export interface Station {
-  N: Stop[];
-  S: Stop[];
-  // list of train name strings e.g. [ "L", "G" ]
-  routes: Route[];
-  last_update: Date;
+export interface StationMeta {
   // same as station_id above, e.g. L08
   id: string;
   location: Location;
   // station name, e.g. "Bedford Av"
   name: string;
   stops: Stops;
+}
+
+/* Summary data about a subway station */
+export interface Station extends StationMeta {
+  N: Stop[];
+  S: Stop[];
+  // list of train name strings e.g. [ "L", "G" ]
+  routes: Route[];
+  last_update: Date;
 }
 
 /* Format for a list of stations */

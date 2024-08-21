@@ -1,0 +1,10 @@
+.map {
+	position: relative;
+	background-color: skyblue;
+	border: 10px solid pink;
+
+	.stop {
+		position: absolute;
+		background-color: #000;
+	}
+}

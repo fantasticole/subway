@@ -4,6 +4,9 @@ import React from "react";
 import { render, cleanup, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, test } from '@jest/globals';
 
+import allStations
+from "./utils/allStations.json";
+
 import App from './App';
 
 import {
@@ -132,5 +135,22 @@ describe('stations along route', () => {
 
       expect(stops.length).toBe(MOCK_G_STATION.S.length);
     });
+  });
+});
+
+describe('Map', () => {
+  beforeEach(async () => {
+    await waitFor(() => render(<App />));
+  });
+
+  test('renders map', async () => {
+    const map = screen.getByTestId("map");
+    expect(map).toBeInTheDocument();
+  });
+
+  test('renders stops', async () => {
+    const map = screen.getByTestId("map");
+    const stops = within(map).getAllByTestId("stop");
+    expect(stops.length).toBe(Object.entries(allStations).length);
   });
 });

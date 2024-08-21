@@ -8,6 +8,7 @@ import { Station as StationData, Route as RouteData } from "./utils/interfaces";
 
 import Station from "./Station/Station";
 import Route from "./Route/Route";
+import Map from "./Map/Map";
 
 import './App.css';
 
@@ -43,6 +44,7 @@ function App() {
   return (
     <div className="App">
         <h1>SUBWAY</h1>
+        <Map />
         <h2>All routes</h2>
         <span data-testid="route-list">
           {routes?.map((route: RouteData, i: number) => (
