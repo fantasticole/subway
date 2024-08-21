@@ -6,5 +6,9 @@
 	.stop {
 		position: absolute;
 		background-color: #000;
+
+		&.highlight {
+			background-color: #fff;
+		}
 	}
 }

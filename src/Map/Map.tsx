@@ -6,12 +6,17 @@ import { Location, StationMeta, Stops } from "../utils/interfaces";
 
 import './Map.css';
 
+interface MapParams {
+  // List of station IDs to highlight
+  highlights: string[];
+}
+
 const DEFAULT_MAP_HEIGHT = 700;
 const DEFAULT_MAP_WIDTH = 700;
 const DEFAULT_STOP_HEIGHT = 5;
 const DEFAULT_STOP_WIDTH = 5;
 
-function Map() {
+function Map({ highlights }: MapParams) {
   const style = {
     height: DEFAULT_MAP_HEIGHT + DEFAULT_STOP_HEIGHT,
     width: DEFAULT_MAP_WIDTH + DEFAULT_STOP_WIDTH,
@@ -32,21 +37,25 @@ function Map() {
     };
   })
 
+  function highlightStop(stationId: string): boolean {
+    return highlights.includes(stationId);
+  }
+
   return (
     <div data-testid="map"
          className="map"
          style={style}>
-      {stationPlots.map((station: StationMeta) => (
-        <div key={station.id}
+      {stationPlots.map(({id, location, name}: StationMeta) => (
+        <div key={id}
              style = {{
-               bottom: station.location[0],
-               left: station.location[1],
+               bottom: location[0],
+               left: location[1],
                height: DEFAULT_STOP_HEIGHT,
                width: DEFAULT_STOP_WIDTH,
              }}
-             title={`${station.name}`}
+             title={`${name}`}
              data-testid="stop"
-             className="stop" />
+             className={'stop ' + (highlightStop(id) ? 'highlight' : ' ')} />
         ))}
     </div>
   );

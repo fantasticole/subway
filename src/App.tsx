@@ -41,10 +41,13 @@ function App() {
     });
   }, [selectedRoute, getRoutes]);
 
+  function generateHighlights(stationList ? : StationData[]): string[] {
+    return (stationList || []).map(({ id }) => (id));
+  }
+
   return (
     <div className="App">
         <h1>SUBWAY</h1>
-        <Map />
         <h2>All routes</h2>
         <span data-testid="route-list">
           {routes?.map((route: RouteData, i: number) => (
@@ -53,6 +56,7 @@ function App() {
                    onClick={() => setSelectedRoute(route)} />
             ))}
         </span>
+        <Map highlights={generateHighlights(route)} />
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>
         <span data-testid="station-list" className="stations">
