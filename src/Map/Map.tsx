@@ -4,6 +4,8 @@ import allStations from "../utils/allStations.json";
 import { calculateLatitude, calculateLongitude } from "../utils/stationData";
 import { Location, StationMeta, Stops, Route } from "../utils/interfaces";
 
+import Stop from "../Stop/Stop";
+
 import './Map.css';
 
 export interface highlightMap {
@@ -53,16 +55,13 @@ function Map({ highlights }: MapParams) {
          className="map"
          style={style}>
       {stationPlots.map(({id, location, name}: StationMeta) => (
-        <div key={id}
-             style = {{
-               bottom: location[0],
-               left: location[1],
-               height: stopHeight,
-               width: stopWidth,
-             }}
+        <Stop key={id}
+             location={location}
+             height= {stopHeight}
+             width= {stopWidth}
              title={`${name}`}
              data-testid="stop"
-             className={'stop ' + highlights[id]} />
+             highlightClass={highlights[id]} />
         ))}
     </div>
   );

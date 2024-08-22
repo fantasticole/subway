@@ -12,6 +12,7 @@ import Map, { highlightMap }
 from "./Map/Map";
 
 import './App.css';
+import './variables.css';
 
 function App() {
   const [getRoutes, setGetRoutes] = useState < boolean > (true);

@@ -1,0 +1,73 @@
+.stop {
+	position: absolute;
+	background-color: #000;
+	border: 0.5px solid #000;
+
+
+	&.highlighted {
+		z-index: 10;
+	}
+
+	&.train1,
+	&.train2,
+	&.train3 {
+		background-color: var(--red);
+	}
+
+	&.train4,
+	&.train5,
+	&.train6,
+	&.train6X {
+		background-color: var(--forest);
+	}
+
+	&.train7,
+	&.train7X {
+		background-color: var(--purple);
+	}
+
+	&.trainB,
+	&.trainD,
+	&.trainF,
+	&.trainFX,
+	&.trainM {
+		background-color: var(--orange);
+	}
+
+	&.trainA,
+	&.trainC,
+	&.trainE {
+		background-color: var(--blue);
+	}
+
+	&.trainFS,
+	&.trainH,
+	&.trainS {
+		background-color: var(--slate);
+	}
+
+	&.trainG {
+		background-color: var(--green);
+	}
+
+	&.trainJ,
+	&.trainZ {
+		background-color: var(--brown);
+	}
+
+	&.trainL {
+		background-color: var(--grey);
+	}
+
+	&.trainN,
+	&.trainQ,
+	&.trainR,
+	&.trainW {
+		background-color: var(--yellow);
+	}
+
+	&.trainSI,
+	&.trainSS {
+		background-color: var(--sea);
+	}
+}
