@@ -6,7 +6,6 @@ import { describe, expect, test } from '@jest/globals';
 
 import Map from './Map';
 
-import { MOCK_L_STATION } from '../utils/mock_data';
 import allStations from "../utils/allStations.json";
 
 const HIGHLIGHTS = {
