@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 
 import {
   fetchRoute,
@@ -43,9 +43,13 @@ function App() {
     });
   }, [selectedRoute, getRoutes]);
 
+
+  const getClassNames = useCallback(() => (`train${selectedRoute} highlighted`), [selectedRoute])
+
+  // only update highlights when route changes
   const highlights: highlightMap = useMemo(
     () => (route || []).reduce((map, { id }) => {
-      map[id] = `train${selectedRoute} highlighted`;
+      map[id] = getClassNames();
       return map;
     }, {} as highlightMap),
     [route]
