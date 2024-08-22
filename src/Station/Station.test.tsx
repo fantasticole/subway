@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom'
 
 import React from "react";
-import { render, cleanup, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, test } from '@jest/globals';
 
 import Station from './Station';
