@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   fetchRoute,
@@ -17,8 +17,9 @@ import './variables.css';
 function App() {
   const [getRoutes, setGetRoutes] = useState < boolean > (true);
   const [updated, setUpdated] = useState < string > ();
-  const [route, setRoute] = useState < StationData[] > ();
+  const [stations, setStations] = useState < StationData[] > ();
   const [routes, setRoutes] = useState < RouteData[] > ();
+  const [highlights, setHighlights] = useState < highlightMap > ({});
   const [selectedRoute, setSelectedRoute] = useState < RouteData > (RouteData.A);
 
   useEffect(() => {
@@ -37,23 +38,16 @@ function App() {
     // fetch stations along selected route
     fetchRoute(selectedRoute).then(res => {
       if (res) {
-        setRoute(res ? res.data : []);
+        setStations(res ? res.data : []);
         setUpdated(new Date(res.updated).toString());
+        setHighlights(() => (res.data || []).reduce((map, { id }) => {
+          map[id] = `train${selectedRoute} highlighted`;
+          return map;
+        }, {} as highlightMap), );
       }
     });
   }, [selectedRoute, getRoutes]);
 
-
-  const getClassNames = useCallback(() => (`train${selectedRoute} highlighted`), [selectedRoute])
-
-  // only update highlights when route changes
-  const highlights: highlightMap = useMemo(
-    () => (route || []).reduce((map, { id }) => {
-      map[id] = getClassNames();
-      return map;
-    }, {} as highlightMap),
-    [route]
-  );
 
   return (
     <div className="App">
@@ -70,7 +64,7 @@ function App() {
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>
         <span data-testid="station-list" className="stations">
-          {route?.map((station: StationData, i: number) => (
+          {stations?.map((station: StationData, i: number) => (
             <Station station={station} key={i} />
             ))}
         </span>
