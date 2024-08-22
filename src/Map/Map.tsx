@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import allStations from "../utils/allStations.json";
 import { calculateLatitude, calculateLongitude } from "../utils/stationData";
@@ -6,10 +6,13 @@ import { Location, StationMeta, Stops, Route } from "../utils/interfaces";
 
 import './Map.css';
 
+export interface highlightMap {
+  [stationId: string]: string;
+}
+
 interface MapParams {
-  // List of station IDs to highlight
-  highlights: string[];
-  selectedRoute: Route;
+  // Station IDs to highlight with a specified className
+  highlights: highlightMap;
 }
 
 const DEFAULT_MAP_HEIGHT = 700;
@@ -17,33 +20,33 @@ const DEFAULT_MAP_WIDTH = 700;
 const DEFAULT_STOP_HEIGHT = 5;
 const DEFAULT_STOP_WIDTH = 5;
 
-function Map({ highlights, selectedRoute }: MapParams) {
+function Map({ highlights }: MapParams) {
+  let mapHeight = DEFAULT_MAP_HEIGHT;
+  let mapWidth = DEFAULT_MAP_WIDTH;
+  let stopHeight = DEFAULT_STOP_HEIGHT;
+  let stopWidth = DEFAULT_STOP_WIDTH;
+
   const style = {
-    height: DEFAULT_MAP_HEIGHT + DEFAULT_STOP_HEIGHT,
-    width: DEFAULT_MAP_WIDTH + DEFAULT_STOP_WIDTH,
+    height: mapHeight + stopHeight,
+    width: mapWidth + stopWidth,
   };
 
-  const stationList = Object.values(allStations);
-  const stationPlots: StationMeta[] = stationList.map(station => {
-    const [lat, lon] = station.location;
-    const scaledLocation: Location = [
-      calculateLatitude(DEFAULT_MAP_HEIGHT, lat), calculateLongitude(DEFAULT_MAP_WIDTH, lon),
-    ];
+  const stationPlots: StationMeta[] = useMemo(
+    () => Object.values(allStations).map(station => {
+      const [lat, lon] = station.location;
+      const scaledLocation: Location = [
+        calculateLatitude(mapHeight, lat), calculateLongitude(mapWidth, lon),
+      ];
 
-    return {
-      ...station,
-      // TODO: TS compiler complains about this being StationMeta because it says stops is not comparable to Stops
-      stops: station.stops as unknown as Stops,
-      location: scaledLocation,
-    };
-  })
-
-  function highlightStop(stationId: string): string {
-    if (!highlights.includes(stationId)) {
-      return '';
-    }
-    return `train${selectedRoute} highlighted`;
-  }
+      return {
+        ...station,
+        location: scaledLocation,
+        // TODO: TS compiler complains about this being StationMeta because it says stops is not comparable to Stops
+        stops: station.stops as unknown as Stops,
+      };
+    }),
+    [allStations, mapHeight, mapWidth]
+  );
 
   return (
     <div data-testid="map"
@@ -54,12 +57,12 @@ function Map({ highlights, selectedRoute }: MapParams) {
              style = {{
                bottom: location[0],
                left: location[1],
-               height: DEFAULT_STOP_HEIGHT,
-               width: DEFAULT_STOP_WIDTH,
+               height: stopHeight,
+               width: stopWidth,
              }}
              title={`${name}`}
              data-testid="stop"
-             className={'stop ' + highlightStop(id)} />
+             className={'stop ' + highlights[id]} />
         ))}
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 import {
   fetchRoute,
@@ -8,7 +8,8 @@ import { Station as StationData, Route as RouteData } from "./utils/interfaces";
 
 import Station from "./Station/Station";
 import Route from "./Route/Route";
-import Map from "./Map/Map";
+import Map, { highlightMap }
+from "./Map/Map";
 
 import './App.css';
 
@@ -41,9 +42,13 @@ function App() {
     });
   }, [selectedRoute, getRoutes]);
 
-  function generateHighlights(stationList ? : StationData[]): string[] {
-    return (stationList || []).map(({ id }) => (id));
-  }
+  const highlights: highlightMap = useMemo(
+    () => (route || []).reduce((map, { id }) => {
+      map[id] = `train${selectedRoute} highlighted`;
+      return map;
+    }, {} as highlightMap),
+    [route]
+  );
 
   return (
     <div className="App">
@@ -56,8 +61,7 @@ function App() {
                    onClick={() => setSelectedRoute(route)} />
             ))}
         </span>
-        <Map selectedRoute={selectedRoute}
-             highlights={generateHighlights(route)} />
+        <Map highlights={highlights} />
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>
         <span data-testid="station-list" className="stations">
