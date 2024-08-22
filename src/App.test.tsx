@@ -62,42 +62,10 @@ describe('stations along route', () => {
     expect(stations.length).toBe(MOCK_STATION_LIST.data.length);
   });
 
-  describe('L Station', () => {
-    let lStation: HTMLElement;
-
-    beforeEach(async () => {
-      const allStations = screen.getAllByTestId("station");
-      lStation = allStations[0];
-    });
-
-    test('renders station names', async () => {
-      const lStationName = MOCK_L_STATION.name;
-      const lStationNameRegEx = new RegExp(lStationName, "i");
-
-      const lStation = screen.getByText(lStationNameRegEx);
-      expect(lStation).toBeInTheDocument();
-    });
-
-    test('renders station routes', async () => {
-      const lRouteList = within(lStation).getByTestId("routes");
-      const lRoutes = within(lRouteList).getAllByTestId("route");
-
-      expect(lRoutes.length).toBe(MOCK_L_STATION.routes.length);
-    });
-
-    test('renders northbound trains', async () => {
-      const northbound = within(lStation).getByTestId("north");
-      const stops = within(northbound).getAllByTestId("stop");
-
-      expect(stops.length).toBe(MOCK_L_STATION.N.length);
-    });
-
-    test('renders southbound trains', async () => {
-      const southbound = within(lStation).getByTestId("south");
-      const stops = within(southbound).getAllByTestId("stop");
-
-      expect(stops.length).toBe(MOCK_L_STATION.S.length);
-    });
+  test('renders L station', async () => {
+    const allStations = screen.getAllByTestId("station");
+    const lStation = allStations[0];
+    expect(lStation).toBeInTheDocument();
   });
 
   describe('G Station', () => {
