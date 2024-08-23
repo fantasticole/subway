@@ -60,7 +60,7 @@ function App() {
                    onClick={() => setSelectedRoute(route)} />
             ))}
         </span>
-        <Map highlights={highlights} />
+        <Map highlights={highlights} autoSize />
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>
         <span data-testid="station-list" className="stations">

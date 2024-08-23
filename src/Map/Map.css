@@ -1,6 +1,6 @@
 .map {
 	position: relative;
-	background-color: #fff;
 	background-color: skyblue;
-	border: 10px solid skyblue;
+	color: skyblue;
+	border-style: solid;
 }
