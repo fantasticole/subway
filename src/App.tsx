@@ -8,8 +8,7 @@ import { Station as StationData, Route as RouteData } from "./utils/interfaces";
 
 import Station from "./Station/Station";
 import Route from "./Route/Route";
-import Map, { highlightMap }
-from "./Map/Map";
+import Map, { highlightMap } from "./Map/Map";
 
 import './App.css';
 import './variables.css';
@@ -23,29 +22,65 @@ function App() {
   const [selectedRoute, setSelectedRoute] = useState < RouteData > (RouteData.A);
 
   useEffect(() => {
-    if (getRoutes) {
-      // fetch all routes
-      fetchRoutes()
-        .then(res => {
-          if (res) {
-            setRoutes(res ? res.data : []);
-            // If we have a response, we don't need to call this again
-            setGetRoutes(false);
-          }
-        });
-    }
+    // if (getRoutes) {
+    //   // fetch all routes
+    //   fetchRoutes()
+    //     .then(res => {
+    //       if (res) {
+    //         setRoutes(res.data);
+    //         // If we have a response, we don't need to call this again
+    //         setGetRoutes(false);
+    //       }
+    //     });
+    // }
 
-    // fetch stations along selected route
-    fetchRoute(selectedRoute).then(res => {
-      if (res) {
-        setStations(res ? res.data : []);
-        setUpdated(new Date(res.updated).toString());
-        setHighlights(() => (res.data || []).reduce((map, { id }) => {
-          map[id] = `train${selectedRoute} highlighted`;
-          return map;
-        }, {} as highlightMap), );
-      }
-    });
+    fetch("/").then(resOne => {
+      console.log({ resOne });
+      console.log({ body: resOne.body });
+      const reader = resOne.body ? resOne.body.getReader() : null;
+      console.log({ reader });
+      // return resOne.text();
+      // return resOne.text();
+      // }).then(text => {
+      //   console.log({ text });
+      //   return JSON.parse(text);
+      // }).then(sthn => {
+      // console.log({ sthn });
+    })
+
+    // fetch("/").then(resOne => {
+    //   console.log({ resOne });
+    //   return resOne.text();
+    // }).then(res => {
+    //   console.log({ res });
+    // })
+
+    fetch("/test").then(res => res.text()).then(text => {
+      console.log({ text });
+      //   return JSON.parse(text);
+      // }).then(test => {
+      //   console.log({ test });
+    })
+
+    // fetch("/test").then(res => res.text()).then(text => (JSON.parse(text))).then(test => {
+    //   console.log({ test });
+    // })
+
+    fetch("/stations").then(res => res.text()).then(text => (JSON.parse(text))).then(stations => {
+      console.log({ stations });
+    })
+
+    // // fetch stations along selected route
+    // fetchRoute(selectedRoute).then(res => {
+    //   if (res) {
+    //     setStations(res.data);
+    //     setUpdated(new Date(res.updated).toString());
+    //     setHighlights(() => (res.data || []).reduce((map, { id }) => {
+    //       map[id] = `train${selectedRoute} highlighted`;
+    //       return map;
+    //     }, {} as highlightMap), );
+    //   }
+    // });
   }, [selectedRoute, getRoutes]);
 
 

@@ -23,7 +23,7 @@ export const fetchRoute = async (route: string): Promise < StationList | void > 
 }
 
 export const fetchRoutes = async (): Promise < RouteList | void > => {
-  return await fetch(`${SUBWAY_API_URL}/routes`)
+  return await fetch("routes")
     .then(res => res.text())
     .then(text => (JSON.parse(text)))
     .catch(error => console.error(error));
