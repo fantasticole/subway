@@ -3,4 +3,8 @@
 	background-color: skyblue;
 	color: skyblue;
 	border-style: solid;
+
+	.stop {
+		position: absolute;
+	}
 }

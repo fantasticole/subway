@@ -38,16 +38,16 @@ describe('stations along route', () => {
 
 		test('renders northbound trains', async () => {
 			const northbound = within(station).getByTestId("north");
-			const stops = within(northbound).getAllByTestId("stop");
+			const incomings = within(northbound).getAllByTestId("incoming");
 
-			expect(stops.length).toBe(MOCK_L_STATION.N.length);
+			expect(incomings.length).toBe(MOCK_L_STATION.N.length);
 		});
 
 		test('renders southbound trains', async () => {
 			const southbound = within(station).getByTestId("south");
-			const stops = within(southbound).getAllByTestId("stop");
+			const incomings = within(southbound).getAllByTestId("incoming");
 
-			expect(stops.length).toBe(MOCK_L_STATION.S.length);
+			expect(incomings.length).toBe(MOCK_L_STATION.S.length);
 		});
 	});
 });
