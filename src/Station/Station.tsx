@@ -30,7 +30,7 @@ function Station({ station }: StationParams) {
         <h4>NORTH</h4>
         <div className="list">
           {station.N.map((stop: Stop, i: number) => (
-            <p key={i} className="stop" data-testid="stop">
+            <p key={i} className="incoming" data-testid="incoming">
               <Route route={stop.route} /> {getTime(stop.time)}
             </p>
             ))}
@@ -40,7 +40,7 @@ function Station({ station }: StationParams) {
         <h4>SOUTH</h4>
         <div className="list">
           {station.S.map((stop: Stop, i: number) => (
-            <p key={i} className="stop" data-testid="stop">
+            <p key={i} className="incoming" data-testid="incoming">
               <Route route={stop.route} /> {getTime(stop.time)}
             </p>
             ))}

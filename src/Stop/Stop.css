@@ -1,8 +1,6 @@
 .stop {
-	position: absolute;
 	background-color: #000;
 	border: 0.5px solid #000;
-
 
 	&.highlighted {
 		z-index: 10;
