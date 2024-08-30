@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_squeeze import Squeeze
 from asgiref.wsgi import WsgiToAsgi
 from flask_cors import CORS, cross_origin
+from mtapi import Mtapi
 
 import asyncio
 import os
@@ -29,6 +30,8 @@ asgi_app = WsgiToAsgi(app)
 
 # globals
 last_updated_time = datetime.now()
+stations_json = json.load(open("../src/utils/allStations.json", encoding="utf-8"))
+mta = Mtapi(NYCTFeeds)
 
 def add_cors_header(resp):
     if True:
@@ -114,14 +117,21 @@ async def arrivals():
             })
     return add_cors_header(response)
 
+@app.route("/route/<route_id>")
+async def route(route_id):
+    data = mta.get_by_route(route_id)
+
+    response = jsonify({
+        'data': json.dumps(data, indent=4, sort_keys=True, default=str),
+        'updated': last_updated_time
+        })
+    return add_cors_header(response)
 
 @app.route("/stations")
 def stations():
-    stations = json.load(open("../src/utils/allStations.json", encoding="utf-8"))
-
     response = jsonify({
-        'stations_json':stations,
-        'stations':list(stations.values()),
+        'stations_json':stations_json,
+        'stations':list(stations_json.values()),
         'embed':request.args.get("embed"),
             })
     return add_cors_header(response)
