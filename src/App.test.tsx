@@ -7,10 +7,6 @@ import { describe, expect, test } from '@jest/globals';
 import App from './App';
 
 import {
-  fetchRoute,
-  fetchRoutes,
-} from "./utils/subway_apis";
-import {
   MOCK_L_STATION,
   MOCK_G_STATION,
   MOCK_ROUTE_LIST,
