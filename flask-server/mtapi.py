@@ -1,12 +1,17 @@
 import copy
 import json
 import datetime
+import math
 from collections import defaultdict
 from operator import itemgetter
 from pytz import timezone
+from itertools import islice
+
+def distance(p1, p2):
+    return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
 
 # globals
-stations_json = json.load(open("../src/utils/allStations.json", encoding="utf-8"))
+stations_json = json.load(open('../src/utils/allStations.json', encoding='utf-8'))
 
 TZ = timezone('US/Eastern')
 
@@ -25,10 +30,12 @@ class Mtapi(object):
 
         def add_train(self, route_id, direction, train_time, feed_time):
             self.routes.add(route_id)
-            self.trains[direction].append({
-                'route': route_id,
-                'time': train_time
-            })
+            # direction could be None
+            if direction:
+                self.trains[direction].append({
+                    'route': route_id,
+                    'time': train_time
+                })
             self.last_update = feed_time
 
         def clear_train_data(self):
@@ -46,7 +53,7 @@ class Mtapi(object):
                 'N': self.trains['N'],
                 'S': self.trains['S'],
                 'routes': list(self.routes),
-                'last_update': self.last_update
+                'last_update': self.last_update,
             }
             out.update(self.json)
             return out
@@ -132,6 +139,21 @@ class Mtapi(object):
 
         return stops
 
+
+    def get_by_point(self, point, limit=5):
+        if self.is_expired():
+            self._update()
+
+        sortable_stations = copy.deepcopy(self._stations).values()
+
+        sorted_stations = sorted(sortable_stations, key=lambda s: distance(s['location'], point))
+        serialized_stations = map(lambda s: s.serialize(), sorted_stations)
+
+        return list(islice(serialized_stations, limit))
+
+    def get_current_routes(self):
+        return self._routes.keys()
+
     def get_by_route(self, route):
         route = route.upper()
 
@@ -141,6 +163,14 @@ class Mtapi(object):
         out = [ self._stations[self._stops_to_stations[k]].serialize() for k in self._routes[route] ]
 
         out.sort(key=lambda x: x['name'])
+        return out
+
+    def get_by_id(self, ids):
+        if self.is_expired():
+            self._update()
+
+        out = [ self._stations[k].serialize() for k in ids ]
+
         return out
 
     def is_expired(self):

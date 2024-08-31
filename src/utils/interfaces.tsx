@@ -38,6 +38,19 @@ export interface Station extends StationMeta {
   last_update: Date;
 }
 
+/* Stations indexed by their Station IDs */
+export interface StationMap {
+  // L08 for "Bedford Av" as station_id
+  [station_id: string]: StationMeta;
+}
+
+/* Response format for all stations API call */
+export interface AllStationsResponse {
+  stations_json: StationMap;
+  station_list: StationMeta[];
+  updated: Date;
+}
+
 /* Format for a list of stations */
 export interface StationList {
   data: Station[];
@@ -48,6 +61,44 @@ export interface StationList {
 export interface RouteList {
   data: Route[];
   updated: Date;
+}
+
+/* Format for a train arrival */
+export interface Arrival {
+  arrival_time: string;
+  dest: string;
+  direction: string;
+  relative: number;
+  route: Route;
+  trip_id: string;
+}
+
+/* Format for a list of arrivals */
+export interface ArrivalList {
+  arrivals: Arrival[];
+  mode: string;
+  station_name: string;
+  stop_ids: string[];
+  updated_readable: string;
+  updated: Date;
+}
+
+/* Format for a train's data */
+export interface TrainStop {
+  arrival: string;
+  relative: number;
+  stop_id: string;
+  stop_name: string;
+}
+
+/* Format for a train's data */
+export interface Train {
+  dest: string;
+  nyct_train_id: string;
+  route: Route;
+  stops: TrainStop[];
+  summary: string;
+  trip_id: string;
 }
 
 /* All route types */
