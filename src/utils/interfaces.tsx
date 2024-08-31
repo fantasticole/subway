@@ -121,6 +121,7 @@ export enum Route {
     FS = "FS", // Franklin Ave S
     FX = "FX", // Franklin Ave S
     G = "G",
+    GS = "GS", // Grand Central - Times Square S
     H = "H", // Far Rockaway S
     J = "J",
     L = "L",
@@ -170,6 +171,7 @@ export const TrainColorMap: Record < Route, Color > = {
   [Route.FS]: Color.SLATE,
   [Route.FX]: Color.ORANGE,
   [Route.G]: Color.GREEN,
+  [Route.GS]: Color.SLATE,
   [Route.H]: Color.SLATE,
   [Route.J]: Color.BROWN,
   [Route.L]: Color.GREY,

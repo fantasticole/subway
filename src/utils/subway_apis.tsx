@@ -3,9 +3,10 @@ import { StationList, RouteList, AllStationsResponse, ArrivalList, Train } from 
 async function callAPI(url: string): Promise < any > {
   return await fetch(url)
     .then(res => res.json())
-    .then((response) => {
-      return { ...response, updated: new Date(response.updated) };
-    })
+    .then((response) => ({
+      ...response,
+      updated: new Date(response.updated)
+    }))
     .catch(error => console.error(error));
 }
 
