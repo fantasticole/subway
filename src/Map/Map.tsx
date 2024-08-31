@@ -83,7 +83,7 @@ function Map({ highlights, autoSize }: MapParams) {
              width= {stopWidth}
              title={`${name}`}
              data-testid="stop"
-             highlightClass={highlights[id]} />
+             highlightClass={highlights[id] || ''} />
         ))}
     </div>
   );

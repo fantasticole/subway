@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   fetchRoute,
+  fetchCurrentRoutes,
 } from "./utils/subway_apis";
 import { Station as StationData, Route as RouteData } from "./utils/interfaces";
 
@@ -16,11 +17,17 @@ const ALL_ROUTES = Object.values(RouteData);
 
 function App() {
   const [updated, setUpdated] = useState < string > ();
+  const [routes, setRoutes] = useState < RouteData[] > (ALL_ROUTES);
   const [stations, setStations] = useState < StationData[] > ();
   const [highlights, setHighlights] = useState < highlightMap > ({});
   const [selectedRoute, setSelectedRoute] = useState < RouteData > (RouteData.A);
 
   useEffect(() => {
+    fetchCurrentRoutes()
+      .then(currentRoutes => {
+        if (currentRoutes) setRoutes(currentRoutes.data);
+      });
+
     // fetch stations along selected route
     fetchRoute(selectedRoute).then(res => {
       if (res) {
@@ -40,7 +47,7 @@ function App() {
         <h1>SUBWAY</h1>
         <h2>All routes</h2>
         <span data-testid="route-list">
-          {ALL_ROUTES?.map((route: RouteData, i: number) => (
+          {routes?.map((route: RouteData, i: number) => (
             <Route route={route}
                    key={i}
                    onClick={() => setSelectedRoute(route)} />

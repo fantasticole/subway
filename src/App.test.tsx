@@ -38,11 +38,13 @@ test('renders route list', async () => {
 });
 
 test('renders stations along route updated time ', async () => {
-  await waitFor(() => render(<App />));
+  render(<App />);
 
   const mockTime = MOCK_STATION_LIST.updated.toString();
-  const updatedTime = screen.getByText(`updated: ${mockTime}`);
-  expect(updatedTime).toBeInTheDocument();
+  await waitFor(() => {
+    const updatedTime = screen.getByText(`updated: ${mockTime}`);
+    expect(updatedTime).toBeInTheDocument();
+  });
 });
 
 describe('stations along route', () => {
@@ -51,23 +53,30 @@ describe('stations along route', () => {
   });
 
   test('renders stations', async () => {
-    const stations = screen.getAllByTestId("station");
-    expect(stations.length).toBe(MOCK_STATION_LIST.data.length);
+    await waitFor(() => {
+      const stations = screen.getAllByTestId("station");
+      expect(stations.length).toBe(MOCK_STATION_LIST.data.length);
+    });
   });
 
   test('renders L station', async () => {
-    const allStations = screen.getAllByTestId("station");
-    const lStation = allStations[0];
-    expect(lStation).toBeInTheDocument();
+    await waitFor(() => {
+      const allStations = screen.getAllByTestId("station");
+      const lStation = allStations[0];
+      expect(lStation).toBeInTheDocument();
+    });
   });
 
   describe('G Station', () => {
     let gStation: HTMLElement;
 
     beforeEach(async () => {
-      const allStations = screen.getAllByTestId("station");
-      gStation = allStations[1];
+      await waitFor(() => {
+        const allStations = screen.getAllByTestId("station");
+        gStation = allStations[1];
+      });
     });
+
     test('renders station names', async () => {
       const gStationName = MOCK_G_STATION.name;
       const gStationNameRegEx = new RegExp(gStationName, "i");
@@ -85,16 +94,16 @@ describe('stations along route', () => {
 
     test('renders northbound trains', async () => {
       const northbound = within(gStation).getByTestId("north");
-      const stops = within(northbound).getAllByTestId("stop");
+      const incomings = within(northbound).getAllByTestId("incoming");
 
-      expect(stops.length).toBe(MOCK_G_STATION.N.length);
+      expect(incomings.length).toBe(MOCK_G_STATION.N.length);
     });
 
     test('renders southbound trains', async () => {
       const southbound = within(gStation).getByTestId("south");
-      const stops = within(southbound).getAllByTestId("stop");
+      const incomings = within(southbound).getAllByTestId("incoming");
 
-      expect(stops.length).toBe(MOCK_G_STATION.S.length);
+      expect(incomings.length).toBe(MOCK_G_STATION.S.length);
     });
   });
 });
