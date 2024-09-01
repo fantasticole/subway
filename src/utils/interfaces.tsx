@@ -131,7 +131,7 @@ export enum Route {
     R = "R",
     S = "S",
     SI = "SI", // Staten Island Rail
-    SIR = "SI", // Staten Island Rail
+    SIR = "SIR", // Staten Island Rail
     SS = "SS", // Staten Island Rail
     W = "W",
     Z = "Z",
