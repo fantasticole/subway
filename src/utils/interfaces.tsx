@@ -131,6 +131,7 @@ export enum Route {
     R = "R",
     S = "S",
     SI = "SI", // Staten Island Rail
+    SIR = "SI", // Staten Island Rail
     SS = "SS", // Staten Island Rail
     W = "W",
     Z = "Z",
@@ -181,6 +182,7 @@ export const TrainColorMap: Record < Route, Color > = {
   [Route.R]: Color.YELLOW,
   [Route.S]: Color.SLATE,
   [Route.SI]: Color.SEA,
+  [Route.SIR]: Color.SEA,
   [Route.SS]: Color.SEA,
   [Route.W]: Color.YELLOW,
   [Route.Z]: Color.BROWN,
