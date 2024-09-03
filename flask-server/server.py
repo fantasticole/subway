@@ -18,8 +18,52 @@ from itertools import groupby, chain
 
 from tzlocal import get_localzone
 
+RouteMap = {
+    '1': '1',
+    '2': '1',
+    '3': '1',
+    '4': '1',
+    '5': '1',
+    '6': '1',
+    '7': '1',
+    'S': '1',
+    'GS': '1',
+    'A': 'A',
+    'C': 'A',
+    'E': 'A',
+    'H': 'A',
+    'FS': 'A',
+    'SF': 'A',
+    'SR': 'A',
+    'B': 'F',
+    'D': 'F',
+    'F': 'F',
+    'M': 'F',
+    'G': 'G',
+    'J': 'J',
+    'Z': 'J',
+    'N': 'N',
+    'Q': 'N',
+    'R': 'N',
+    'W': 'N',
+    'L': 'L',
+    'SI': 'SI',
+    'SS': 'SI',
+    'SIR': 'SI',
+}
+
 Feeds = ('1', 'A', 'F', 'G', 'J', 'L', 'N', 'SI')
-NYCTFeeds = [NYCTFeed(feed, fetch_immediately=True) for feed in Feeds]
+NYCTFeedMap = {
+    '1': NYCTFeed('1', fetch_immediately=True),
+    'A': NYCTFeed('A', fetch_immediately=True),
+    'F': NYCTFeed('F', fetch_immediately=True),
+    'G': NYCTFeed('G', fetch_immediately=True),
+    'J': NYCTFeed('J', fetch_immediately=True),
+    'L': NYCTFeed('L', fetch_immediately=True),
+    'N': NYCTFeed('N', fetch_immediately=True),
+    'SI': NYCTFeed('SI', fetch_immediately=True),
+}
+NYCTFeeds = NYCTFeedMap.values()
 
 # initialize flask app
 squeeze = Squeeze()
@@ -47,6 +91,45 @@ def get_trip_by_id(trip_id):
         for trip in feed.trips:
             if trip_id == trip.trip_id:
                 return trip
+
+def format_time(time):
+    if time is not None:
+        return arrow.get(time, get_localzone()).isoformat()
+    return 0
+
+def get_arrival(time):
+    if time is not None:
+        return {
+            'arrival': format_time(time),
+            'relative': (time - datetime.now()).seconds
+            // 60
+            if time > datetime.now()
+            else -1,
+        }
+    return {}
+
+
+def get_stop_time_update(update):
+    return {
+        **get_arrival(update.arrival),
+        'stop_id': update.stop_id[:-1],
+        'stop_name': update.stop_name,
+    }
+
+def train_data_from_trip(trip):
+    return {
+        'trip_id': trip.trip_id,
+        'route': trip.route_id,
+        'direction': trip.direction,
+        'dest': trip.headsign_text
+        if trip.headsign_text
+        else trip.shape_id,
+        'summary': str(trip),
+        'nyct_train_id': trip.nyc_train_id,
+        'stops': [
+            get_stop_time_update(update) for update in trip.stop_time_updates
+        ],
+    }
 
 async def refresh():
     global last_updated_time
@@ -154,34 +237,34 @@ def stations():
     return add_cors_header(response)
 
 
+@app.route('/line/<line_id>')
+async def line(line_id):
+    route = RouteMap[line_id]
+    feed = NYCTFeedMap[route]
+    trips = feed.filter_trips(line_id=line_id, underway=True)
+
+    this_line = []
+    for trip in trips:
+        train_data = train_data_from_trip(trip)
+        this_line.append({
+            **train_data,
+            'next_stop': train_data['stops'][0],
+            })
+
+    response = jsonify({
+        'this_line': this_line,
+        'updated': last_updated_time
+        })
+
+    return add_cors_header(response)
+
+
 @app.route('/train/<trip_id>')
 async def train(trip_id):
     await refresh()
     trip = get_trip_by_id(trip_id)
     if trip:
-        response = jsonify({
-            'trip_id': trip_id,
-            'route': trip.route_id,
-            'dest': trip.headsign_text
-            if trip.headsign_text
-            else trip.shape_id,
-            'summary': str(trip),
-            'nyct_train_id': trip.nyc_train_id,
-            'stops': [
-                {
-                    'stop_id': update.stop_id,
-                    'stop_name': update.stop_name,
-                    'arrival': arrow.get(
-                        update.arrival, get_localzone()
-                    ).isoformat(),
-                    'relative': (update.arrival - datetime.now()).seconds
-                    // 60
-                    if update.arrival > datetime.now()
-                    else -1,
-                }
-                for update in trip.stop_time_updates
-            ],
-        })
+        response = jsonify(train_data_from_trip(trip))
         return add_cors_header(response)
     return jsonify({'error': 'uhh no train here'})
 
