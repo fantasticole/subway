@@ -35,6 +35,10 @@ export const fetchArrivals = async (): Promise < ArrivalList | void > => {
   return await callAPI('arrivals')
 }
 
+export const fetchLine = async (line: Route): Promise < StationList | void > => {
+  return await callAPI(`line/${line}`)
+}
+
 export const fetchTrain = async (train: string): Promise < Train | void > => {
   return await fetch(`train/${train}`)
     .then(res => res.json())

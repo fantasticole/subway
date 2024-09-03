@@ -144,12 +144,12 @@ export enum Color {
     GREEN = "#6CBE45", // G
     BROWN = "#996633", // J, Z
     GREY = "#A7A9AC", // L
-    YELLOW = "#FCCC0A", // N, Q, R
-    SLATE = "#808183", // S, H, FS
+    YELLOW = "#FCCC0A", // N, Q, R, W
+    SLATE = "#808183", // S, GS, H, FS
     RED = "#EE352E", // 1, 2, 3
-    FOREST = "#00933C", // 4, 5, 6
-    PURPLE = "#B933AD", // 7
-    SEA = "#0078C6", // SIR
+    FOREST = "#00933C", // 4, 5, 6, 6X
+    PURPLE = "#B933AD", // 7, 7X
+    SEA = "#0078C6", // SIR, SI, SS
 }
 
 /* Map of each route to its icon color */
