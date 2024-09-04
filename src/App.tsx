@@ -21,9 +21,10 @@ function App() {
   const [highlights, setHighlights] = useState < highlightMap > ({});
   const [selectedRoute, setSelectedRoute] = useState < RouteData > (RouteData.A);
   const [nextStops, setNextStops] = useState < NextStop[] > ([]);
+  const [onlySelected, setOnlySelected] = useState < boolean > (true);
 
   useEffect(() => {
-    fetchLine(selectedRoute)
+    fetchLine(onlySelected ? selectedRoute : undefined)
       .then(line => {
         if (line) {
           const { lines } = line;
@@ -49,7 +50,7 @@ function App() {
       }
     });
 
-  }, [selectedRoute]);
+  }, [selectedRoute, onlySelected]);
 
   return (
     <div className="App">
@@ -62,6 +63,16 @@ function App() {
                    onClick={() => setSelectedRoute(route)} />
             ))}
         </span>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={onlySelected}
+              onChange={() => setOnlySelected(!onlySelected)}
+            />
+            Only render selected route
+          </label>
+        </div>
         <Map highlights={highlights} incoming={nextStops} autoSize />
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>
