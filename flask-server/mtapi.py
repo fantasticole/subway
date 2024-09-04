@@ -111,6 +111,7 @@ class Mtapi(object):
                     stop_id = update.stop_id[:-1]
 
                     if stop_id not in self._stops_to_stations:
+                        # "any stop ID which appears in the GTFS-rt feed but does not appear in the GTFS stops.txt file should be treated as a non-revenue stop and can be dropped." (https://groups.google.com/g/mtadeveloperresources/c/W_HSpV1BO6I/m/v8HjaopZAwAJ)
                         print('Stop %s not found' % (stop_id))
                         continue
 

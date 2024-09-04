@@ -250,7 +250,7 @@ async def line(line_id):
     this_line = []
     for trip in trips:
         train_data = train_data_from_trip(trip)
-        next_stop = train_data['stops'][0] if len(train_data['stops']) is not 0 else None
+        next_stop = train_data['stops'][0] if len(train_data['stops']) != 0 else None
         this_line.append({
             **train_data,
             'next_stop': next_stop,
