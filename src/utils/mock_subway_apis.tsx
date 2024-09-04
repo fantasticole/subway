@@ -1,8 +1,9 @@
 import {
-  MOCK_STATION_LIST,
-  MOCK_ROUTE_LIST,
-  MOCK_STATIONS_RESPONSE,
   MOCK_ARRIVAL_LIST,
+  MOCK_LINE_LIST,
+  MOCK_ROUTE_LIST,
+  MOCK_STATION_LIST,
+  MOCK_STATIONS_RESPONSE,
   MOCK_TRAIN,
 } from './mock_data';
 
@@ -19,6 +20,8 @@ const mockSubwayApis = (inputUrl: string | URL | Request) => {
     response = JSON.stringify(MOCK_ARRIVAL_LIST);
   } else if (url.includes("train")) {
     response = JSON.stringify(MOCK_TRAIN);
+  } else if (url.includes("line")) {
+    response = JSON.stringify(MOCK_LINE_LIST);
   }
   return Promise.resolve(new Response(response));
 };

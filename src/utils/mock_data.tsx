@@ -2,6 +2,7 @@ import {
   AllStationsResponse,
   Arrival,
   ArrivalList,
+  LineList,
   Route,
   RouteList,
   Station,
@@ -200,9 +201,17 @@ export const MOCK_TRAIN_STOP: TrainStop = {
 
 export const MOCK_TRAIN: Train = {
   dest: "Far Rockaway-Mott Av",
+  direction: "S",
+  last_position_update: "2024-09-04T11:51:09-04:00",
   nyct_train_id: "1A 1039+ 207/FAR",
   route: Route.A,
+  next_stop: MOCK_TRAIN_STOP,
   stops: [MOCK_TRAIN_STOP],
-  summary: "Southbound A to Far Rockaway-Mott Av, departed origin 10:39:30, Currently STOPPED_AT Beach 44 St, last update at 12:16:45",
+  summary: "Southbound A to Far Rockaway-Mott Av, departed origin 10:39:30, Currently STOPPED_AT Beach 44 St, last update at 11:51:09",
   trip_id: "063950_A..S57X001",
+}
+
+export const MOCK_LINE_LIST: LineList = {
+  this_line: [MOCK_TRAIN],
+  updated: new Date("2024-05-15T17:29:41-04:00")
 }

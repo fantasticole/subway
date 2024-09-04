@@ -1,4 +1,4 @@
-import { StationList, RouteList, Route, AllStationsResponse, ArrivalList, Train } from "./interfaces";
+import { StationList, RouteList, Route, AllStationsResponse, ArrivalList, LineList, Train } from "./interfaces";
 
 async function callAPI(url: string): Promise < any > {
   return await fetch(url)
@@ -35,7 +35,7 @@ export const fetchArrivals = async (): Promise < ArrivalList | void > => {
   return await callAPI('arrivals')
 }
 
-export const fetchLine = async (line: Route): Promise < StationList | void > => {
+export const fetchLine = async (line: Route): Promise < LineList | void > => {
   return await callAPI(`line/${line}`)
 }
 

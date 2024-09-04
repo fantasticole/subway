@@ -94,11 +94,20 @@ export interface TrainStop {
 /* Format for a train's data */
 export interface Train {
   dest: string;
+  direction: string;
+  last_position_update: string;
+  next_stop ? : TrainStop | null;
   nyct_train_id: string;
   route: Route;
   stops: TrainStop[];
   summary: string;
   trip_id: string;
+}
+
+/* Format for a list of lines */
+export interface LineList {
+  this_line: Train[];
+  updated: Date;
 }
 
 /* All route types */
