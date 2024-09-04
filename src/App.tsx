@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 
 import {
   fetchRoute,
+  fetchLine,
   fetchCurrentRoutes,
 } from "./utils/subway_apis";
-import { Station as StationData, Route as RouteData } from "./utils/interfaces";
+import { Station as StationData, Route as RouteData, Train, NextStop } from "./utils/interfaces";
 
 import Station from "./Station/Station";
 import Route from "./Route/Route";
@@ -13,16 +14,26 @@ import Map, { highlightMap } from "./Map/Map";
 import './App.css';
 import './variables.css';
 
-const ALL_ROUTES = Object.values(RouteData);
-
 function App() {
   const [updated, setUpdated] = useState < string > ();
-  const [routes, setRoutes] = useState < RouteData[] > (ALL_ROUTES);
+  const [routes, setRoutes] = useState < RouteData[] > ([]);
   const [stations, setStations] = useState < StationData[] > ();
   const [highlights, setHighlights] = useState < highlightMap > ({});
   const [selectedRoute, setSelectedRoute] = useState < RouteData > (RouteData.A);
+  const [nextStops, setNextStops] = useState < NextStop[] > ([]);
 
   useEffect(() => {
+    fetchLine(selectedRoute)
+      .then(line => {
+        console.log({ line });
+        if (line) {
+          const { this_line } = line;
+          const stops = this_line.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
+          console.log({ stops });
+          setNextStops(stops);
+        }
+      });
+
     fetchCurrentRoutes()
       .then(currentRoutes => {
         if (currentRoutes) setRoutes(currentRoutes.data);
@@ -53,7 +64,7 @@ function App() {
                    onClick={() => setSelectedRoute(route)} />
             ))}
         </span>
-        <Map highlights={highlights} autoSize />
+        <Map highlights={highlights} incoming={nextStops} autoSize />
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>
         <span data-testid="station-list" className="stations">

@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useState } from "react";
 
 import allStations from "../utils/allStations.json";
 import { calculateLatitude, calculateLongitude } from "../utils/stationData";
-import { Location, StationMeta, Stops } from "../utils/interfaces";
+import { Location, StationMeta, Stops, NextStop } from "../utils/interfaces";
 
 import Stop from "../Stop/Stop";
 
@@ -15,6 +15,7 @@ export interface highlightMap {
 interface MapParams {
   // Station IDs to highlight with a specified className
   highlights: highlightMap;
+  incoming: NextStop[];
   autoSize ? : boolean;
 }
 
@@ -29,7 +30,7 @@ const getDimensions = (borderWidth: number = DEFAULT_BORDER_WIDTH) => ({
   height: window.innerHeight - (2 * borderWidth),
 });
 
-function Map({ highlights, autoSize }: MapParams) {
+function Map({ highlights, autoSize, incoming }: MapParams) {
   const [height, setHeight] = useState(autoSize ? getDimensions().height : DEFAULT_MAP_HEIGHT);
   const [width, setWidth] = useState(autoSize ? getDimensions().width : DEFAULT_MAP_WIDTH);
 
@@ -65,25 +66,25 @@ function Map({ highlights, autoSize }: MapParams) {
       return {
         ...station,
         location: scaledLocation,
+        incoming: incoming.filter(({ stop_id }) => stop_id === station.id),
         // TODO: TS compiler complains about this being StationMeta because it says stops is not comparable to Stops
         stops: station.stops as unknown as Stops,
       };
     }),
-    [height, width, stopHeight, stopWidth]
+    [height, width, stopHeight, stopWidth, incoming]
   );
 
   return (
     <div data-testid="map"
          className="map"
          style={style}>
-      {stationPlots.map(({id, location, name}: StationMeta) => (
-        <Stop key={id}
-             location={location}
-             height= {stopHeight}
-             width= {stopWidth}
-             title={`${name}`}
-             data-testid="stop"
-             highlightClass={highlights[id] || ''} />
+      {stationPlots.map((stationMeta: StationMeta) => (
+        <Stop key={stationMeta.id}
+              stationMeta={stationMeta}
+              height= {stopHeight}
+              width= {stopWidth}
+              data-testid="stop"
+              highlightClass={highlights[stationMeta.id] || ''} />
         ))}
     </div>
   );

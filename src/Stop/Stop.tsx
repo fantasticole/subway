@@ -1,23 +1,26 @@
 import React from "react";
-import { Location } from "../utils/interfaces";
+
+import { StationMeta } from "../utils/interfaces";
+
+import Route from "../Route/Route";
 
 import './Stop.css';
 
 interface StopParams {
-	location: Location;
+	stationMeta: StationMeta;
 	height: number;
 	width: number;
-	title: string;
 	highlightClass: string;
 }
 
 function Stop({
-	location,
+	stationMeta,
 	height,
 	width,
-	title,
 	highlightClass,
 }: StopParams) {
+	const { name, incoming, location } = stationMeta;
+
 	const style = {
 		bottom: location[0],
 		left: location[1],
@@ -27,9 +30,13 @@ function Stop({
 
 	return (
 		<div style = {style}
-         title={title}
+         title={name}
          data-testid="stop"
-         className={'stop ' + highlightClass} />
+         className={'stop ' + highlightClass}>
+      {incoming?.map(({route, trip_id}) => (
+        <Route route={route} key={trip_id} />
+        ))}
+     </div>
 	);
 
 }

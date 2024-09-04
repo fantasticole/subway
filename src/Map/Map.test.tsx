@@ -3,6 +3,7 @@ import '@testing-library/jest-dom'
 import React from "react";
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, test } from '@jest/globals';
+import { Route, NextStop } from "../utils/interfaces";
 
 import Map from './Map';
 
@@ -15,9 +16,18 @@ const HIGHLIGHTS = {
 	"115": "class",
 }
 
+const STOPS: NextStop[] = [{
+	arrival: "2024-09-04T13:03:55-04:00",
+	relative: -1,
+	stop_id: "G12",
+	stop_name: "Grand Av-Newtown",
+	route: Route.R,
+	trip_id: "071500_A..N55R",
+}];
+
 describe('Map', () => {
 	beforeEach(async () => {
-		await waitFor(() => render(<Map highlights ={HIGHLIGHTS}/>));
+		await waitFor(() => render(<Map highlights={HIGHLIGHTS} incoming={STOPS}/>));
 	});
 
 	test('renders map', async () => {

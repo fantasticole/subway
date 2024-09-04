@@ -27,6 +27,7 @@ export interface StationMeta {
   // station name, e.g. "Bedford Av"
   name: string;
   stops: Stops;
+  incoming ? : NextStop[] | undefined;
 }
 
 /* Summary data about a subway station */
@@ -85,7 +86,7 @@ export interface ArrivalList {
 
 /* Format for a train's data */
 export interface TrainStop {
-  arrival: string;
+  arrival: string | undefined;
   relative: number;
   stop_id: string;
   stop_name: string;
@@ -108,6 +109,12 @@ export interface Train {
 export interface LineList {
   this_line: Train[];
   updated: Date;
+}
+
+/* Format for data about the next stop for a train */
+export interface NextStop extends TrainStop {
+  route: Route;
+  trip_id: string;
 }
 
 /* All route types */
