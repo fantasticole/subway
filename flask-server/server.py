@@ -121,6 +121,10 @@ def train_data_from_trip(trip):
         'trip_id': trip.trip_id,
         'route': trip.route_id,
         'direction': trip.direction,
+        # This is the time of the last detected movement of the train.
+        # This allows feed consumers to detect the situation when a train
+        # stops moving (aka stalled)
+        'last_position_update': format_time(trip.last_position_update),
         'dest': trip.headsign_text
         if trip.headsign_text
         else trip.shape_id,
@@ -246,9 +250,10 @@ async def line(line_id):
     this_line = []
     for trip in trips:
         train_data = train_data_from_trip(trip)
+        next_stop = train_data['stops'][0] if len(train_data['stops']) is not 0 else None
         this_line.append({
             **train_data,
-            'next_stop': train_data['stops'][0],
+            'next_stop': next_stop,
             })
 
     response = jsonify({
