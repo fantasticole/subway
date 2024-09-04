@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 
 import {
-  fetchRoute,
-  fetchLine,
   fetchCurrentRoutes,
+  fetchLine,
+  fetchRoute,
 } from "./utils/subway_apis";
 import { Station as StationData, Route as RouteData, Train, NextStop } from "./utils/interfaces";
 
@@ -25,11 +25,9 @@ function App() {
   useEffect(() => {
     fetchLine(selectedRoute)
       .then(line => {
-        console.log({ line });
         if (line) {
           const { this_line } = line;
           const stops = this_line.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
-          console.log({ stops });
           setNextStops(stops);
         }
       });
