@@ -6524,5 +6524,119 @@
 				-74.073643
 			]
 		}
+	},
+	"H17": {
+		"id": "H17",
+		"location": [0, 0],
+		"name": "Howard Beach/JFK Airport and Broad Channel",
+		"stops": {
+			"H17": [0, 0]
+		}
+	},
+	"H19": {
+		"id": "H19",
+		"location": [0, 0],
+		"name": "Broad Channel and Rockaway Shuttle",
+		"stops": {
+			"H19": [0, 0]
+		}
+	},
+	"H18": {
+		"id": "H18",
+		"location": [0, 0],
+		"name": "Broad Channel and Beach 67 St",
+		"stops": {
+			"H18": [0, 0]
+		}
+	},
+	"H05": {
+		"id": "H05",
+		"location": [0, 0],
+		"name": "Broad Channel and Beach 67 St",
+		"stops": {
+			"H05": [0, 0]
+		}
+	},
+	"A29": {
+		"id": "A29",
+		"location": [0, 0],
+		"name": "St George",
+		"stops": {
+			"A29": [0, 0]
+		}
+	},
+	"A29": {
+		"id": "A29",
+		"location": [
+			40.745906,
+			-73.998041
+		],
+		"name": "23 St [Shadow]",
+		"stops": {
+			"A29": [
+				40.745906,
+				-73.998041
+			]
+		}
+	},
+	"A39": {
+		"id": "A39",
+		"location": [
+			40.69884825,
+			-73.9912480833
+		],
+		"name": "NYC Transit museum [Estimate]",
+		"stops": {
+			"A39": [
+				40.69884825,
+				-73.9912480833
+			]
+		}
+	},
+	"A58": {
+		"id": "A58",
+		"location": [0, 0],
+		"name": "Grant Av. and 80th St",
+		"stops": {
+			"A58": [0, 0]
+		}
+	},
+	"A62": {
+		"id": "A62",
+		"location": [0, 0],
+		"name": "Rockaway Blvd and 104th St",
+		"stops": {
+			"A62": [0, 0]
+		}
+	},
+	"R60": {
+		"id": "R60",
+		"location": [0, 0],
+		"name": "Queensboro Plaza and Lexington Ave/59th St",
+		"stops": {
+			"R60": [0, 0]
+		}
+	},
+	"R65": {
+		"id": "R65",
+		"location": [
+			40.69884825,
+			-73.9912480833
+		],
+		"name": "Whitehall St and Court St",
+		"stops": {
+			"R65": [
+				40.69884825,
+				-73.9912480833
+			]
+		}
+	},
+	"B24": {
+		"id": "B24",
+		"location": [0, 0],
+		"name": "MTA Coney Island Yard (Bay 50th St and Coney Island)",
+		"stops": {
+			"B24": [0, 0]
+		}
 	}
 }
