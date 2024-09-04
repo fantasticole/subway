@@ -253,7 +253,6 @@ def stations():
 async def line(line_id):
     trips = []
 
-    print("line_id ", line_id)
     if not line_id:
         for feed in NYCTFeeds:
             trips += feed.trips
