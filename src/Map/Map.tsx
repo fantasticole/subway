@@ -63,10 +63,13 @@ function Map({ highlights, autoSize, incoming }: MapParams) {
         calculateLatitude((height - stopHeight), lat), calculateLongitude((width - stopWidth), lon),
       ];
 
+      const stationStops = Object.keys(station.stops);
+      const incomingTrains = incoming.filter(({ stop_id }) => (stop_id === station.id || stationStops.includes(stop_id)));
+
       return {
         ...station,
         location: scaledLocation,
-        incoming: incoming.filter(({ stop_id }) => stop_id === station.id),
+        incoming: incomingTrains,
         // TODO: TS compiler complains about this being StationMeta because it says stops is not comparable to Stops
         stops: station.stops as unknown as Stops,
       };
