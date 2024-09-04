@@ -6604,17 +6604,23 @@
 	"A62": {
 		"id": "A62",
 		"location": [0, 0],
-		"name": "Rockaway Blvd and 104th St",
+		"name": "Liberty Junction tower (Rockaway Blvd and 104th St)",
 		"stops": {
 			"A62": [0, 0]
 		}
 	},
 	"R60": {
 		"id": "R60",
-		"location": [0, 0],
-		"name": "Queensboro Plaza and Lexington Ave/59th St",
+		"location": [
+			40.752553,
+			-73.944152
+		],
+		"name": "11 Street Cut (Queensboro Plaza and Lexington Ave/59th St)",
 		"stops": {
-			"R60": [0, 0]
+			"R60": [
+				40.752553,
+				-73.944152
+			]
 		}
 	},
 	"R65": {
