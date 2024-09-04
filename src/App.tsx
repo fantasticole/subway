@@ -26,8 +26,8 @@ function App() {
     fetchLine(selectedRoute)
       .then(line => {
         if (line) {
-          const { this_line } = line;
-          const stops = this_line.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
+          const { lines } = line;
+          const stops = lines.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
           setNextStops(stops);
         }
       });

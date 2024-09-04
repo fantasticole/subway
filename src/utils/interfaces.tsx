@@ -107,7 +107,7 @@ export interface Train {
 
 /* Format for a list of lines */
 export interface LineList {
-  this_line: Train[];
+  lines: Train[];
   updated: Date;
 }
 

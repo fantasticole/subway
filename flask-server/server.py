@@ -117,6 +117,11 @@ def get_stop_time_update(update):
     }
 
 def train_data_from_trip(trip):
+    try:
+        trip_string = str(trip)
+    except ValueError:
+        trip_string =  'No trip string'
+
     return {
         'trip_id': trip.trip_id,
         'route': trip.route_id,
@@ -128,7 +133,7 @@ def train_data_from_trip(trip):
         'dest': trip.headsign_text
         if trip.headsign_text
         else trip.shape_id,
-        'summary': str(trip),
+        'summary': trip_string,
         'nyct_train_id': trip.nyc_train_id,
         'stops': [
             get_stop_time_update(update) for update in trip.stop_time_updates
@@ -241,11 +246,19 @@ def stations():
     return add_cors_header(response)
 
 
-@app.route('/line/<line_id>')
+@app.route('/lines', defaults={'line_id': None})
+@app.route('/lines/<line_id>')
 async def line(line_id):
-    route = RouteMap[line_id]
-    feed = NYCTFeedMap[route]
-    trips = feed.filter_trips(line_id=line_id, underway=True)
+    trips = []
+
+    print("line_id ", line_id)
+    if not line_id:
+        for feed in NYCTFeeds:
+            trips += feed.trips
+    else:
+        route = RouteMap[line_id]
+        feed = NYCTFeedMap[route]
+        trips = feed.filter_trips(line_id=line_id, underway=True)
 
     this_line = []
     for trip in trips:
@@ -257,7 +270,7 @@ async def line(line_id):
             })
 
     response = jsonify({
-        'this_line': this_line,
+        'lines': this_line,
         'updated': last_updated_time
         })
 

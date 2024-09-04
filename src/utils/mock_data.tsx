@@ -212,6 +212,6 @@ export const MOCK_TRAIN: Train = {
 }
 
 export const MOCK_LINE_LIST: LineList = {
-  this_line: [MOCK_TRAIN],
+  lines: [MOCK_TRAIN],
   updated: new Date("2024-05-15T17:29:41-04:00")
 }
