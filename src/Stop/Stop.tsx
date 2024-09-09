@@ -33,8 +33,9 @@ function Stop({
          title={name}
          data-testid="stop"
          className={'stop ' + highlightClass}>
-      {incoming?.map(({route, trip_id}) => (
-        <Route route={route} key={trip_id} />
+      {incoming?.map(({route, trip_id}, i) => (
+      	// include index in key because sometimes the same trip id comes through multiple times
+        <Route route={route} key={trip_id + i} />
         ))}
      </div>
 	);
