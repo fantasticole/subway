@@ -50,7 +50,35 @@ function App() {
       }
     });
 
+    testStream();
   }, [selectedRoute, onlySelected]);
+
+  const testStream = async () => {
+    fetch('test')
+      .then((response) => {
+        const reader = response.body!.getReader();
+        return new ReadableStream({
+          start(controller) {
+            return pump();
+
+            function pump(): any {
+              return reader.read().then(({ done, value }: any) => {
+                // When no more data needs to be consumed, close the stream
+                if (done) {
+                  controller.close();
+                  return;
+                }
+                const chunk = new TextDecoder().decode(value);
+                // Enqueue the next data chunk into our target stream
+                controller.enqueue(value);
+                return pump();
+              });
+            }
+          },
+        });
+      })
+      .catch((err) => console.error(err));
+  };
 
   return (
     <div className="App">

@@ -3,6 +3,7 @@ from flask_squeeze import Squeeze
 from asgiref.wsgi import WsgiToAsgi
 from flask_cors import CORS, cross_origin
 from mtapi import Mtapi
+from time import sleep
 
 import asyncio
 import os
@@ -246,6 +247,16 @@ def stations():
         'updated': last_updated_time
         })
     return add_cors_header(response)
+
+@app.route("/test")
+def test():
+    def generate():
+        for i in range(15):
+            yield json.dumps({'current': i})
+            sleep(1)
+
+    return app.response_class(generate(), mimetype="message/partial")
+
 
 
 @app.route('/lines', defaults={'line_id': None})
