@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_squeeze import Squeeze
 from asgiref.wsgi import WsgiToAsgi
 from flask_cors import CORS, cross_origin
+from flask_socketio import SocketIO, emit
 from mtapi import Mtapi
 from time import sleep
 
@@ -72,6 +73,7 @@ NYCTFeeds = NYCTFeedMap.values()
 squeeze = Squeeze()
 app = Flask(__name__)
 CORS(app, support_credentials=True)
+socketio = SocketIO(app, cors_allowed_origins='*')
 squeeze.init_app(app)
 asgi_app = WsgiToAsgi(app)
 
@@ -182,6 +184,25 @@ async def get_arrivals(stations):
 
     return arrivals
 
+@socketio.on('connect')
+def connected():
+    # event listener when client connects to the server
+    print("request.sid ", request.sid)
+    print('client has connected')
+    # emit('connect', broadcast=True)
+
+@socketio.on('data')
+def handle_data(data):
+    # event listener when client sends data
+    print('data from the front end: ',str(data))
+    emit('data', data, broadcast=True)
+
+@socketio.on('disconnect')
+def disconnected():
+    # event listener when client disconnects from the server
+    print("request.sid ", request.sid)
+    print('client has disconnected')
+    # emit('disconnect', broadcast=True)
 
 @app.route('/arrivals')
 async def arrivals():
@@ -341,4 +362,4 @@ def by_index(id_string):
         return add_cors_header(resp)
 
 if __name__ == '__main__':
-    app.run(use_reloader=True)
+    socketio.run(app, debug=True, port=5000, use_reloader=True)
