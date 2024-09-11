@@ -63,7 +63,6 @@ function App() {
   // only run once to create socket
   useEffect(() => {
     const socket = io("http://127.0.0.1:5000/", {
-      autoConnect: false,
       withCredentials: true,
       transports: ["websocket"],
     });
@@ -103,23 +102,19 @@ function App() {
     }
   }, [isConnected, selectedRoute, socketInstance]);
 
-  function connect() {
-    if (socketInstance) socketInstance.connect();
-  }
-
-  function disconnect() {
-    if (socketInstance) socketInstance.disconnect();
-  }
-
   return (
     <div className="App">
         <h1>SUBWAY</h1>
         <div>
-          <>
-            <p data-testid="isConnected">isConnected: {`${isConnected}`}</p>
-            <button onClick={ connect }>Connect</button>
-            <button onClick={ disconnect }>Disconnect</button>
-          </>
+          {socketInstance &&
+            <>
+              <p data-testid="isConnected">isConnected: {`${isConnected}`}</p>
+              {
+                isConnected ?
+                <button onClick={ () => socketInstance.disconnect() }>Disconnect</button> :
+                <button onClick={ () => socketInstance.connect() }>Connect</button>
+              }
+            </>}
         </div>
         <h2>All routes</h2>
         <span data-testid="route-list">
