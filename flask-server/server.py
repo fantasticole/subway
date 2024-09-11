@@ -5,6 +5,7 @@ from flask_cors import CORS, cross_origin
 from flask_socketio import SocketIO, emit
 from mtapi import Mtapi
 from time import sleep
+from threading import Event, Lock
 
 import asyncio
 import os
@@ -81,6 +82,9 @@ asgi_app = WsgiToAsgi(app)
 last_updated_time = datetime.now()
 stations_json = json.load(open('../src/utils/allStations.json', encoding='utf-8'))
 mta = Mtapi(NYCTFeeds)
+thread = None
+thread_event = Event()
+thread_lock = Lock()
 
 def add_cors_header(resp):
     if True:
@@ -145,6 +149,28 @@ def train_data_from_trip(trip):
         ],
     }
 
+def get_trip_update(line_id):
+    route = RouteMap[line_id]
+    feed = NYCTFeedMap[route]
+    trips = feed.filter_trips(line_id=line_id, underway=True)
+
+    this_line = get_this_line(trips)
+
+    return this_line
+
+def get_this_line(trips):
+    this_line = []
+
+    for trip in trips:
+        train_data = train_data_from_trip(trip)
+        next_stop = train_data['stops'][0] if len(train_data['stops']) != 0 else None
+        this_line.append({
+            **train_data,
+            'next_stop': next_stop,
+            })
+
+    return this_line
+
 async def refresh():
     global last_updated_time
     if (datetime.now() - last_updated_time).seconds >= 14:
@@ -191,18 +217,44 @@ def connected():
     print('client has connected')
     # emit('connect', broadcast=True)
 
-@socketio.on('data')
-def handle_data(data):
-    # event listener when client sends data
-    print('data from the front end: ',str(data))
-    emit('data', data, broadcast=True)
-
 @socketio.on('disconnect')
 def disconnected():
     # event listener when client disconnects from the server
     print("request.sid ", request.sid)
     print('client has disconnected')
     # emit('disconnect', broadcast=True)
+
+def linestream(line_id, event):
+    global thread
+    count = 0
+    try:
+        while event.is_set():
+            count += 1
+            update = get_trip_update(line_id)
+            socketio.emit('streamline', update)
+            socketio.sleep(10)
+    finally:
+        event.clear()
+        thread = None
+
+@socketio.on('startstreamline')
+def startstreamline(line_id):
+    print('startstreamline')
+    global thread
+    with thread_lock:
+        if thread is None:
+            thread_event.set()
+            thread = socketio.start_background_task(linestream, line_id, thread_event)
+
+@socketio.on('stopstreamline')
+def stopstreamline():
+    print('stopstreamline')
+    global thread
+    thread_event.clear()
+    with thread_lock:
+        if thread is not None:
+            thread.join()
+            thread = None
 
 @app.route('/arrivals')
 async def arrivals():
@@ -269,17 +321,6 @@ def stations():
         })
     return add_cors_header(response)
 
-@app.route("/test")
-def test():
-    def generate():
-        for i in range(15):
-            yield json.dumps({'current': i})
-            sleep(1)
-
-    return app.response_class(generate(), mimetype="message/partial")
-
-
-
 @app.route('/lines', defaults={'line_id': None})
 @app.route('/lines/<line_id>')
 async def line(line_id):
@@ -288,19 +329,9 @@ async def line(line_id):
     if not line_id:
         for feed in NYCTFeeds:
             trips += feed.trips
+        this_line = get_this_line(trips)
     else:
-        route = RouteMap[line_id]
-        feed = NYCTFeedMap[route]
-        trips = feed.filter_trips(line_id=line_id, underway=True)
-
-    this_line = []
-    for trip in trips:
-        train_data = train_data_from_trip(trip)
-        next_stop = train_data['stops'][0] if len(train_data['stops']) != 0 else None
-        this_line.append({
-            **train_data,
-            'next_stop': next_stop,
-            })
+        this_line = get_trip_update(line_id)
 
     response = jsonify({
         'lines': this_line,

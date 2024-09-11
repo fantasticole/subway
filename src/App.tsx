@@ -60,44 +60,44 @@ function App() {
       autoConnect: false,
       withCredentials: true,
       transports: ["websocket"],
-      // cors: {
-      //   origin: "http://localhost:3000/",
-      // },
     });
 
     setSocketInstance(socket);
-
-    const onConnect = () => setIsConnected(true)
-
-    const onDisconnect = () => setIsConnected(false)
-
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    // socket.on('data', (data: string) => {
-    //   console.log({ data });
-    // });
-
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-    };
   }, []);
 
-  const handleSubmit = () => {
+  useEffect(() => {
     if (socketInstance) {
-      socketInstance.emit("data", 'test');
+      const onStreamLine = (data: any) => {
+        console.log({ data });
+      }
+
+      socketInstance.on('streamline', onStreamLine);
+
+      return () => {
+        socketInstance.off('streamline', onStreamLine);
+      };
+    }
+  }, [socketInstance]);
+
+  const handleChangeRoute = (route: RouteData) => {
+    setSelectedRoute(route);
+    if (socketInstance) {
+      socketInstance.emit('stopstreamline');
+      socketInstance.emit('startstreamline', route);
     }
   };
 
   function connect() {
     if (socketInstance) {
       socketInstance.connect();
+      setIsConnected(true);
     }
   }
 
   function disconnect() {
     if (socketInstance) {
       socketInstance.disconnect();
+      setIsConnected(false);
     }
   }
 
@@ -110,14 +110,13 @@ function App() {
             <button onClick={ connect }>Connect</button>
             <button onClick={ disconnect }>Disconnect</button>
           </>
-          <button onClick={handleSubmit}>submit</button>
         </div>
         <h2>All routes</h2>
         <span data-testid="route-list">
           {routes?.map((route: RouteData, i: number) => (
             <Route route={route}
                    key={i}
-                   onClick={() => setSelectedRoute(route)} />
+                   onClick={() => handleChangeRoute(route)} />
             ))}
         </span>
         <div>
