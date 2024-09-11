@@ -72,10 +72,13 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const onConnect = () => setIsConnected(true);
-    const onDisconnect = () => setIsConnected(false);
-
     if (socketInstance) {
+      const onConnect = () => setIsConnected(true);
+      const onDisconnect = () => {
+        setIsConnected(false);
+        clearInterval(refreshInterval);
+      }
+
       const onStreamLine = async (lines: Train[]) => {
         const stops = lines.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
         setNextStops(stops);
@@ -86,7 +89,6 @@ function App() {
       socketInstance.on('streamline', onStreamLine);
 
       return () => {
-        clearInterval(refreshInterval);
         socketInstance.off('connect', onConnect);
         socketInstance.off('disconnect', onDisconnect);
         socketInstance.off('streamline', onStreamLine);
@@ -94,30 +96,19 @@ function App() {
     }
   }, [socketInstance, refreshInterval]);
 
-  const handleChangeRoute = (route: RouteData) => {
-    setSelectedRoute(route);
-    if (socketInstance) {
-      socketInstance.emit('stopstreamline');
-      socketInstance.emit('startstreamline', route);
+  useEffect(() => {
+    if (socketInstance && isConnected) {
+      socketInstance.emit('streamline', selectedRoute);
       setRefreshInterval(setInterval(() => fetch('refresh'), 5000));
     }
-  };
+  }, [isConnected, selectedRoute, socketInstance]);
 
   function connect() {
-    if (socketInstance) {
-      socketInstance.connect();
-      socketInstance.emit('startstreamline', selectedRoute);
-      setRefreshInterval(setInterval(() => fetch('refresh'), 5000));
-      setIsConnected(true);
-    }
+    if (socketInstance) socketInstance.connect();
   }
 
   function disconnect() {
-    if (socketInstance) {
-      socketInstance.disconnect();
-      clearInterval(refreshInterval);
-      setIsConnected(false);
-    }
+    if (socketInstance) socketInstance.disconnect();
   }
 
   return (
@@ -135,7 +126,7 @@ function App() {
           {routes?.map((route: RouteData, i: number) => (
             <Route route={route}
                    key={i}
-                   onClick={() => handleChangeRoute(route)} />
+                   onClick={() => setSelectedRoute(route)} />
             ))}
         </span>
         <div>

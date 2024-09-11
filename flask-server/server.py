@@ -217,14 +217,17 @@ def connected():
     # event listener when client connects to the server
     print("request.sid ", request.sid)
     print('client has connected')
-    # emit('connect', broadcast=True)
 
 @socketio.on('disconnect')
 def disconnected():
     # event listener when client disconnects from the server
     print("request.sid ", request.sid)
     print('client has disconnected')
-    # emit('disconnect', broadcast=True)
+    # if there is a thread, signal for it to stop
+    with thread_lock:
+        if thread is not None:
+            thread_event.clear()
+            thread.join()
 
 def linestream(line_id, event):
     global thread
@@ -239,27 +242,23 @@ def linestream(line_id, event):
         event.clear()
         thread = None
 
-@socketio.on('startstreamline')
-def startstreamline(line_id):
-    print('startstreamline')
+@socketio.on('streamline')
+def streamline(line_id):
+    print('streamline')
     global thread
-    # lock the thread
+    # lock the thread if it isn't already
     with thread_lock:
+        if thread is not None:
+            # signal the thread to stop
+            thread_event.clear()
+            thread.join()
+            # signal the thread to start
+            thread_event.set()
+            thread = socketio.start_background_task(linestream, line_id, thread_event)
         if thread is None:
             # signal the thread to start
             thread_event.set()
             thread = socketio.start_background_task(linestream, line_id, thread_event)
-
-@socketio.on('stopstreamline')
-def stopstreamline():
-    print('stopstreamline')
-    global thread
-    thread_event.clear()
-    with thread_lock:
-        if thread is not None:
-            # signal the thread to stop
-            thread.join()
-            thread = None
 
 @app.route('/arrivals')
 async def arrivals():
