@@ -6,7 +6,12 @@ import {
   fetchLine,
   fetchRoute,
 } from "./utils/subway_apis";
-import { Station as StationData, Route as RouteData, Train, NextStop } from "./utils/interfaces";
+import {
+  Station as StationData,
+  Route as RouteData,
+  Train,
+  NextStop,
+} from "./utils/interfaces";
 
 import Station from "./Station/Station";
 import Route from "./Route/Route";
@@ -25,6 +30,7 @@ function App() {
   const [onlySelected, setOnlySelected] = useState < boolean > (true);
   const [socketInstance, setSocketInstance] = useState < Socket > ();
   const [isConnected, setIsConnected] = useState < boolean > (false);
+  const [refreshInterval, setRefreshInterval] = useState < ReturnType < typeof setInterval > > ();
 
   useEffect(() => {
     fetchLine(onlySelected ? selectedRoute : undefined)
@@ -66,30 +72,42 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const onConnect = () => setIsConnected(true);
+    const onDisconnect = () => setIsConnected(false);
+
     if (socketInstance) {
-      const onStreamLine = (data: any) => {
-        console.log({ data });
+      const onStreamLine = async (lines: Train[]) => {
+        const stops = lines.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
+        setNextStops(stops);
       }
 
+      socketInstance.on('connect', onConnect);
+      socketInstance.on('disconnect', onDisconnect);
       socketInstance.on('streamline', onStreamLine);
 
       return () => {
+        clearInterval(refreshInterval);
+        socketInstance.off('connect', onConnect);
+        socketInstance.off('disconnect', onDisconnect);
         socketInstance.off('streamline', onStreamLine);
       };
     }
-  }, [socketInstance]);
+  }, [socketInstance, refreshInterval]);
 
   const handleChangeRoute = (route: RouteData) => {
     setSelectedRoute(route);
     if (socketInstance) {
       socketInstance.emit('stopstreamline');
       socketInstance.emit('startstreamline', route);
+      setRefreshInterval(setInterval(() => fetch('refresh'), 5000));
     }
   };
 
   function connect() {
     if (socketInstance) {
       socketInstance.connect();
+      socketInstance.emit('startstreamline', selectedRoute);
+      setRefreshInterval(setInterval(() => fetch('refresh'), 5000));
       setIsConnected(true);
     }
   }
@@ -97,6 +115,7 @@ function App() {
   function disconnect() {
     if (socketInstance) {
       socketInstance.disconnect();
+      clearInterval(refreshInterval);
       setIsConnected(false);
     }
   }

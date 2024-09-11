@@ -83,7 +83,9 @@ last_updated_time = datetime.now()
 stations_json = json.load(open('../src/utils/allStations.json', encoding='utf-8'))
 mta = Mtapi(NYCTFeeds)
 thread = None
+# Thread events signal a thread (loop) when it should stop and start
 thread_event = Event()
+# Thread locks are synchronization mechanisms that allow multiple threads to access a shared resource safely
 thread_lock = Lock()
 
 def add_cors_header(resp):
@@ -232,7 +234,7 @@ def linestream(line_id, event):
             count += 1
             update = get_trip_update(line_id)
             socketio.emit('streamline', update)
-            socketio.sleep(10)
+            socketio.sleep(5)
     finally:
         event.clear()
         thread = None
@@ -241,8 +243,10 @@ def linestream(line_id, event):
 def startstreamline(line_id):
     print('startstreamline')
     global thread
+    # lock the thread
     with thread_lock:
         if thread is None:
+            # signal the thread to start
             thread_event.set()
             thread = socketio.start_background_task(linestream, line_id, thread_event)
 
@@ -253,6 +257,7 @@ def stopstreamline():
     thread_event.clear()
     with thread_lock:
         if thread is not None:
+            # signal the thread to stop
             thread.join()
             thread = None
 
@@ -310,6 +315,12 @@ async def routes():
         'updated': last_updated_time
         })
     return add_cors_header(response)
+
+
+@app.route('/refresh')
+async def call_refresh():
+    await refresh()
+    return ('', 204)
 
 
 @app.route('/stations')
