@@ -1,4 +1,5 @@
 .train {
+	/*	1.1em is half the height and width of a Route component*/
 	margin-bottom: -1.1em;
 	margin-left: -1.1em;
 	z-index: 10;
