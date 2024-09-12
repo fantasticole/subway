@@ -4,6 +4,8 @@ import { Train as TrainData, Location } from "../utils/interfaces";
 
 import Route from "../Route/Route";
 
+import './Train.css';
+
 interface TrainParams {
 	train: TrainData;
 	position: Location | undefined;

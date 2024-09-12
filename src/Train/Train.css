@@ -1,0 +1,9 @@
+.train {
+	margin-bottom: -1.1em;
+	margin-left: -1.1em;
+	z-index: 10;
+
+	.route {
+		border: 1px solid black;
+	}
+}
