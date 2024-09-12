@@ -182,6 +182,9 @@ async def refresh():
         await asyncio.gather(*(feed.refresh_async() for feed in NYCTFeeds))
         print(str(arrow.utcnow()), 'refresh finished in', str(datetime.now() - timer))
 
+def refresh_all():
+    [feed.refresh() for feed in NYCTFeeds]
+    mta._update()
 
 async def get_arrivals(stations):
     print(str(arrow.utcnow()), 'getting arrivals')
@@ -235,9 +238,7 @@ def linestream(line_id, event):
     try:
         while event.is_set():
             count += 1
-            route = RouteMap[line_id]
-            feed = NYCTFeedMap[route]
-            feed.refresh()
+            refresh_all()
             update = get_trip_update(line_id)
             socketio.emit('streamline', update)
             socketio.sleep(1)
