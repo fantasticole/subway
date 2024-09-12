@@ -3,11 +3,12 @@ import '@testing-library/jest-dom'
 import React from "react";
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, test } from '@jest/globals';
+
 import { Route, NextStop } from "../utils/interfaces";
+import { MOCK_TRAIN } from '../utils/mock_data';
+import allStations from "../utils/allStations.json";
 
 import Map from './Map';
-
-import allStations from "../utils/allStations.json";
 
 const HIGHLIGHTS = {
 	"112": "class",
@@ -16,18 +17,9 @@ const HIGHLIGHTS = {
 	"115": "class",
 }
 
-const STOPS: NextStop[] = [{
-	arrival: "2024-09-04T13:03:55-04:00",
-	relative: -1,
-	stop_id: "G12",
-	stop_name: "Grand Av-Newtown",
-	route: Route.R,
-	trip_id: "071500_A..N55R",
-}];
-
 describe('Map', () => {
 	beforeEach(async () => {
-		await waitFor(() => render(<Map highlights={HIGHLIGHTS} incoming={STOPS}/>));
+		await waitFor(() => render(<Map highlights={HIGHLIGHTS} incoming={[MOCK_TRAIN]}/>));
 	});
 
 	test('renders map', async () => {

@@ -10,7 +10,6 @@ import {
   Station as StationData,
   Route as RouteData,
   Train,
-  NextStop,
 } from "./utils/interfaces";
 
 import Station from "./Station/Station";
@@ -24,9 +23,9 @@ function App() {
   const [updated, setUpdated] = useState < string > ();
   const [routes, setRoutes] = useState < RouteData[] > ([]);
   const [stations, setStations] = useState < StationData[] > ();
+  const [trains, setTrains] = useState < Train[] > ([]);
   const [highlights, setHighlights] = useState < highlightMap > ({});
   const [selectedRoute, setSelectedRoute] = useState < RouteData > (RouteData.A);
-  const [nextStops, setNextStops] = useState < NextStop[] > ([]);
   const [onlySelected, setOnlySelected] = useState < boolean > (true);
   const [socketInstance, setSocketInstance] = useState < Socket > ();
   const [isConnected, setIsConnected] = useState < boolean > (false);
@@ -34,11 +33,7 @@ function App() {
   useEffect(() => {
     fetchLine(onlySelected ? selectedRoute : undefined)
       .then(line => {
-        if (line) {
-          const { lines } = line;
-          const stops = lines.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
-          setNextStops(stops);
-        }
+        if (line) setTrains(line.lines);
       });
 
     fetchCurrentRoutes()
@@ -62,6 +57,7 @@ function App() {
   // Only run once to create socket
   useEffect(() => {
     const socket = io("http://127.0.0.1:5000/", {
+      // autoConnect: false,
       withCredentials: true,
       transports: ["websocket"],
     });
@@ -75,11 +71,7 @@ function App() {
     if (socketInstance) {
       const onConnect = () => setIsConnected(true);
       const onDisconnect = () => setIsConnected(false);
-
-      const onStreamLine = async (lines: Train[]) => {
-        const stops = lines.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
-        setNextStops(stops);
-      }
+      const onStreamLine = (lines: Train[]) => setTrains(lines);
 
       socketInstance.on('connect', onConnect);
       socketInstance.on('disconnect', onDisconnect);
@@ -133,7 +125,7 @@ function App() {
             Only render selected route
           </label>
         </div>
-        <Map highlights={highlights} incoming={nextStops} autoSize />
+        <Map highlights={highlights} incoming={trains} autoSize />
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>
         <span data-testid="station-list" className="stations">

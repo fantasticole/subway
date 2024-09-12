@@ -2,9 +2,10 @@ import React, { useMemo, useEffect, useState } from "react";
 
 import allStations from "../utils/allStations.json";
 import { calculateLatitude, calculateLongitude } from "../utils/stationData";
-import { Location, StationMeta, Stops, NextStop } from "../utils/interfaces";
+import { Location, StationMeta, Stops, Train, NextStop } from "../utils/interfaces";
 
 import Stop from "../Stop/Stop";
+import TrainComponent from "../Train/Train";
 
 import './Map.css';
 
@@ -15,7 +16,7 @@ export interface highlightMap {
 interface MapParams {
   // Station IDs to highlight with a specified className
   highlights: highlightMap;
-  incoming: NextStop[];
+  incoming: Train[];
   autoSize ? : boolean;
 }
 
@@ -64,7 +65,8 @@ function Map({ highlights, autoSize, incoming }: MapParams) {
       ];
 
       const stationStops = Object.keys(station.stops);
-      const incomingTrains = incoming.filter(({ stop_id }) => (stop_id === station.id || stationStops.includes(stop_id)));
+      const stops = incoming.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
+      const incomingTrains = stops.filter(({ stop_id }) => (stop_id === station.id || stationStops.includes(stop_id)));
 
       return {
         ...station,
@@ -77,6 +79,14 @@ function Map({ highlights, autoSize, incoming }: MapParams) {
     [height, width, stopHeight, stopWidth, incoming]
   );
 
+  function getTrainPosition({ next_stop }: Train) {
+    if (!next_stop) return;
+    const { stop_id } = next_stop;
+    const station = stationPlots.find(({ id }) => id === stop_id);
+    if (!station) return;
+    return station.location;
+  }
+
   return (
     <div data-testid="map"
          className="map"
@@ -88,6 +98,12 @@ function Map({ highlights, autoSize, incoming }: MapParams) {
               width= {stopWidth}
               data-testid="stop"
               highlightClass={highlights[stationMeta.id] || ''} />
+        ))}
+      {incoming.map((train, i) => (
+        // include index in key because sometimes the same trip id comes through multiple times
+        <TrainComponent key={train.trip_id + i}
+                        train={train}
+                        position={getTrainPosition(train)} />
         ))}
     </div>
   );
