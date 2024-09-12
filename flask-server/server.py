@@ -235,9 +235,12 @@ def linestream(line_id, event):
     try:
         while event.is_set():
             count += 1
+            route = RouteMap[line_id]
+            feed = NYCTFeedMap[route]
+            feed.refresh()
             update = get_trip_update(line_id)
             socketio.emit('streamline', update)
-            socketio.sleep(5)
+            socketio.sleep(1)
     finally:
         event.clear()
         thread = None
@@ -314,12 +317,6 @@ async def routes():
         'updated': last_updated_time
         })
     return add_cors_header(response)
-
-
-@app.route('/refresh')
-async def call_refresh():
-    await refresh()
-    return ('', 204)
 
 
 @app.route('/stations')

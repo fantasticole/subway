@@ -30,7 +30,6 @@ function App() {
   const [onlySelected, setOnlySelected] = useState < boolean > (true);
   const [socketInstance, setSocketInstance] = useState < Socket > ();
   const [isConnected, setIsConnected] = useState < boolean > (false);
-  const [refreshInterval, setRefreshInterval] = useState < ReturnType < typeof setInterval > > ();
 
   useEffect(() => {
     fetchLine(onlySelected ? selectedRoute : undefined)
@@ -58,9 +57,9 @@ function App() {
         }, {} as highlightMap), );
       }
     });
-  }, [selectedRoute, onlySelected]);
+  }, [selectedRoute, onlySelected, isConnected]);
 
-  // only run once to create socket
+  // Only run once to create socket
   useEffect(() => {
     const socket = io("http://127.0.0.1:5000/", {
       withCredentials: true,
@@ -70,13 +69,12 @@ function App() {
     setSocketInstance(socket);
   }, []);
 
+  // If there's a socket instance, set listeners & event handlers
+  // Remvoe them when no longer mounted
   useEffect(() => {
     if (socketInstance) {
       const onConnect = () => setIsConnected(true);
-      const onDisconnect = () => {
-        setIsConnected(false);
-        clearInterval(refreshInterval);
-      }
+      const onDisconnect = () => setIsConnected(false);
 
       const onStreamLine = async (lines: Train[]) => {
         const stops = lines.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
@@ -93,12 +91,13 @@ function App() {
         socketInstance.off('streamline', onStreamLine);
       };
     }
-  }, [socketInstance, refreshInterval]);
+  }, [socketInstance]);
 
+  // Stream the selected route if we're connected to the socker
+  // Only update if the route changes & the socket is connected
   useEffect(() => {
     if (socketInstance && isConnected) {
       socketInstance.emit('streamline', selectedRoute);
-      setRefreshInterval(setInterval(() => fetch('refresh'), 5000));
     }
   }, [isConnected, selectedRoute, socketInstance]);
 
