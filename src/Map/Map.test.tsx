@@ -19,7 +19,7 @@ const HIGHLIGHTS = {
 
 describe('Map', () => {
 	beforeEach(async () => {
-		await waitFor(() => render(<Map highlights={HIGHLIGHTS} incoming={[MOCK_TRAIN]}/>));
+		await waitFor(() => render(<Map highlights={HIGHLIGHTS} incoming={[MOCK_TRAIN]} lines={{}}/>));
 	});
 
 	test('renders map', async () => {
