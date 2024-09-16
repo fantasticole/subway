@@ -1,8 +1,14 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState, useCallback } from "react";
 
-import allStations from "../utils/allStations.json";
 import { calculateLatitude, calculateLongitude } from "../utils/stationData";
-import { Location, Station, StationMeta, Stops, Train, NextStop, TrainColorMap } from "../utils/interfaces";
+import {
+  AllStationsMap,
+  Location,
+  NextStop,
+  StationMeta,
+  Train,
+  TrainColorMap
+} from "../utils/interfaces";
 
 import Stop from "../Stop/Stop";
 import TrainComponent from "../Train/Train";
@@ -22,8 +28,10 @@ export interface PathMap {
   [stopId: string]: Path;
 }
 
-interface TempStationMap {
-  [id: string]: Station;
+/* ID & location of a stop */
+type StopMeta = {
+  id: string;
+  location: Location;
 }
 
 interface MapParams {
@@ -71,55 +79,55 @@ function Map({ highlights, autoSize, incoming, lines }: MapParams) {
     borderWidth: DEFAULT_BORDER_WIDTH,
   };
 
-  const stationPlots: StationMeta[] = useMemo(
-    () => Object.values(allStations).map(station => {
-      const [lat, lon] = station.location;
-      const scaledLocation: Location = [
-        calculateLatitude((height - stopHeight), lat), calculateLongitude((width - stopWidth), lon),
-      ];
+  const scaleLocation = useCallback(([lat, lon]: Location): Location => ([
+    calculateLatitude((height - stopHeight), lat),
+    calculateLongitude((width - stopWidth), lon),
+  ]), [height, stopHeight, width, stopWidth]);
 
+  const generateMeta = useCallback((id: string): StopMeta | undefined => {
+    const stationMeta = AllStationsMap[id];
+    if (!stationMeta) return;
+    const loc = scaleLocation(stationMeta.location);
+    return {
+      id,
+      location: [(height - loc[0]), loc[1]]
+    };
+  }, [height, scaleLocation]);
+
+  const mapLines: Array < StopMeta[] > = useMemo(
+    () => Object.values(lines).map(stopPosition => {
+      if (!stopPosition.before || !stopPosition.after) return null;
+
+      const beforeMeta = generateMeta(stopPosition.before);
+      const afterMeta = generateMeta(stopPosition.after);
+
+      return (!beforeMeta || !afterMeta) ? null : [beforeMeta, afterMeta];
+    }).filter(line => line !== null),
+    [lines, generateMeta]
+  );
+
+  const stationPlots: StationMeta[] = useMemo(
+    () => Object.values(AllStationsMap).map(station => {
       const stationStops = Object.keys(station.stops);
       const stops = incoming.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
       const incomingTrains = stops.filter(({ stop_id }) => (stop_id === station.id || stationStops.includes(stop_id)));
 
       return {
         ...station,
-        location: scaledLocation,
+        location: scaleLocation(station.location),
         incoming: incomingTrains,
-        // TODO: TS compiler complains about this being StationMeta because it says stops is not comparable to Stops
-        stops: station.stops as unknown as Stops,
       };
     }),
-    [height, width, stopHeight, stopWidth, incoming]
+    [incoming, scaleLocation]
   );
 
-  const mapLines: any[] = useMemo(
-    () => Object.values(lines).map(stopPosition => {
-      const { before, after } = stopPosition;
-      if (!before || !after) return null;
-      const beforeStop: Station = (allStations as unknown as TempStationMap)[before];
-      const afterStop: Station = (allStations as unknown as TempStationMap)[after];
-      if (!beforeStop || !afterStop) return null;
-
-      const [lat, lon] = beforeStop.location;
-      const scaledLocation: Location = [
-        (height - calculateLatitude(height - stopHeight, lat)), calculateLongitude(width - stopWidth, lon),
-      ];
-
-      const [aLat, aLon] = afterStop.location;
-      const aScaledLocation: Location = [
-        (height - calculateLatitude(height - stopHeight, aLat)), calculateLongitude(width - stopWidth, aLon),
-      ];
-      return [{
-        id: before,
-        location: scaledLocation
-      }, {
-        id: after,
-        location: aScaledLocation
-      }];
-    }).filter(line => line !== null),
-    [height, width, lines]
-  );
+  const getTrainPosition = useCallback(({ next_stop }: Train): Location | undefined => {
+    if (!next_stop) return;
+    const { stop_id } = next_stop;
+    const station = stationPlots.find(({ id }) => id === stop_id);
+    if (!station) return;
+    return station.location;
+  }, [stationPlots])
 
   const trains: Array < { train: Train;position: Location } > = useMemo(
     () => (incoming
@@ -127,16 +135,8 @@ function Map({ highlights, autoSize, incoming, lines }: MapParams) {
       // (Linter didn't like this coming after the map)
       .filter((train) => (!!getTrainPosition(train)))
       .map(train => ({ train, position: getTrainPosition(train) ! }))),
-    [incoming]
+    [incoming, getTrainPosition]
   );
-
-  function getTrainPosition({ next_stop }: Train) {
-    if (!next_stop) return;
-    const { stop_id } = next_stop;
-    const station = stationPlots.find(({ id }) => id === stop_id);
-    if (!station) return;
-    return station.location;
-  }
 
   const stroke = incoming[0] ? TrainColorMap[incoming[0].route] : 'black';
 
