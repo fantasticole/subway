@@ -121,6 +121,15 @@ function Map({ highlights, autoSize, incoming, lines }: MapParams) {
     [height, width, lines]
   );
 
+  const trains: Array < { train: Train;position: Location } > = useMemo(
+    () => (incoming
+      // Filter if we don't have a position for this train
+      // (Linter didn't like this coming after the map)
+      .filter((train) => (!!getTrainPosition(train)))
+      .map(train => ({ train, position: getTrainPosition(train) ! }))),
+    [incoming]
+  );
+
   function getTrainPosition({ next_stop }: Train) {
     if (!next_stop) return;
     const { stop_id } = next_stop;
@@ -159,11 +168,11 @@ function Map({ highlights, autoSize, incoming, lines }: MapParams) {
               data-testid="stop"
               highlightClass={highlights[stationMeta.id] || ''} />
         ))}
-      {incoming.map((train, i) => (
+      {trains.map(({train, position}, i) => (
         // include index in key because sometimes the same trip id comes through multiple times
         <TrainComponent key={train.trip_id + i}
                         train={train}
-                        position={getTrainPosition(train)} />
+                        position={position} />
         ))}
     </div>
   );
