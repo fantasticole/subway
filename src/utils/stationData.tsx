@@ -1,4 +1,4 @@
-import allStations from "../utils/allStations.json";
+import allStations from "./allStations.json";
 
 // Calculated via getStationEdges
 /* Lowest latitude from allStations.json */

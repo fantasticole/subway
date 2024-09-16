@@ -1,3 +1,5 @@
+import allStations from "./allStations.json";
+
 /* Data about what time a route stops at a station */
 export interface Stop {
   // train name string, e.g. "L"
@@ -16,7 +18,7 @@ export type Location = [
 // Some stops are comprised of multiple stations
 export interface Stops {
   // L08 for "Bedford Av" as station_id
-  [station_id: string]: Location;
+  [stop_id: string]: Location;
 }
 
 /* Summary data about a subway station */
@@ -212,3 +214,16 @@ export const BlackFontRoutes = [
   Route.R,
   Route.W,
 ];
+
+/* Convert allStations.json in a StationsMap */
+export const AllStationsMap: StationMap = Object.entries(allStations).reduce((map, [id, meta]) => {
+  map[id] = {
+    ...meta,
+    location: meta.location as Location,
+    stops: Object.entries(meta.stops).reduce((stationStops, [id, loc]) => {
+      stationStops[id] = loc as Location;
+      return stationStops;
+    }, {} as Stops),
+  };
+  return map;
+}, {} as StationMap);
