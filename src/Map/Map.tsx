@@ -84,6 +84,7 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
       if (!stationMeta) return;
       location = stationMeta.stops[id];
     }
+    if (location[0] === 0 && location[1] === 0) return;
     const [lat, lon] = scaleLocation(location);
     return {
       id,
