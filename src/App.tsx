@@ -128,6 +128,7 @@ function App() {
         <Map highlights={highlights}
              selectedRoute={selectedRoute}
              trains={trains}
+             socket={socketInstance}
              autoSize />
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>

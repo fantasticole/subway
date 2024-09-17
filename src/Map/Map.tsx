@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect, useState, useCallback } from "react";
+import { Socket } from "socket.io-client";
 
 import { calculateLatitude, calculateLongitude, getRouteLines } from "../utils/stationData";
 import {
@@ -33,6 +34,7 @@ interface MapParams {
   trains: Train[];
   selectedRoute: Route;
   autoSize ? : boolean;
+  socket ? : Socket | undefined;
 }
 
 const DEFAULT_MAP_HEIGHT = 700;
@@ -46,7 +48,7 @@ const getDimensions = (borderWidth: number = DEFAULT_BORDER_WIDTH) => ({
   height: window.innerHeight - (2 * borderWidth),
 });
 
-function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
+function Map({ highlights, autoSize, selectedRoute, trains, socket }: MapParams) {
   const [height, setHeight] = useState(autoSize ? getDimensions().height : DEFAULT_MAP_HEIGHT);
   const [width, setWidth] = useState(autoSize ? getDimensions().width : DEFAULT_MAP_WIDTH);
 
@@ -178,7 +180,8 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
         // include index in key because sometimes the same trip id comes through multiple times
         <TrainComponent key={train.trip_id + i}
                         train={train}
-                        position={position} />
+                        position={position}
+                        socket={socket} />
         ))}
     </div>
   );
