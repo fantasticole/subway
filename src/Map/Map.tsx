@@ -55,11 +55,11 @@ const getDimensions = (borderWidth: number = DEFAULT_BORDER_WIDTH) => ({
   height: window.innerHeight - (2 * borderWidth),
 });
 
-function getAll(lines: Train[]) {
-  const maybeAllStations: PathMap = {};
-  lines.forEach(({ stops, direction }: Train) => {
+function getRouteLines(trains: Train[]) {
+  const pathMap: PathMap = {};
+  trains.forEach(({ stops, direction }: Train) => {
     stops.forEach(({ stop_id }: TrainStop, i: number) => {
-      const current = { ...maybeAllStations[stop_id] };
+      const current = { ...pathMap[stop_id] };
       if (stops[i - 1]) {
         if (direction === 'S') {
           current.before = stops[i - 1].stop_id;
@@ -74,10 +74,10 @@ function getAll(lines: Train[]) {
           current.before = stops[i + 1].stop_id;
         }
       }
-      maybeAllStations[stop_id] = current;
+      pathMap[stop_id] = current;
     });
   });
-  return maybeAllStations;
+  return pathMap;
 }
 
 function Map({ highlights, autoSize, selectedRoute }: MapParams) {
@@ -105,7 +105,7 @@ function Map({ highlights, autoSize, selectedRoute }: MapParams) {
       const onDisconnect = () => setIsConnected(false);
       const onStreamLine = (lines: Train[]) => {
         setTrains(lines);
-        setTrainLines(getAll(lines));
+        setTrainLines(getRouteLines(lines));
       }
 
       socketInstance.on('connect', onConnect);
@@ -150,10 +150,10 @@ function Map({ highlights, autoSize, selectedRoute }: MapParams) {
   const generateMeta = useCallback((id: string): StopMeta | undefined => {
     const stationMeta = AllStationsMap[id];
     if (!stationMeta) return;
-    const loc = scaleLocation(stationMeta.location);
+    const [lat, lon] = scaleLocation(stationMeta.location);
     return {
       id,
-      location: [(height - loc[0]), loc[1]]
+      location: [(height - lat), lon]
     };
   }, [height, scaleLocation]);
 
