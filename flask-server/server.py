@@ -232,6 +232,12 @@ def disconnected():
             thread_event.clear()
             thread.join()
 
+@socketio.on('get trip')
+def on_get(trip_id):
+    print('get ', trip_id)
+    trip = get_trip_by_id(trip_id)
+    emit('trip', str(trip))
+
 def linestream(line_id, event):
     global thread
     count = 0
