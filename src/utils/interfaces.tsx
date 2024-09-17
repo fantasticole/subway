@@ -119,6 +119,11 @@ export interface NextStop extends TrainStop {
   trip_id: string;
 }
 
+/* Format for a map of line connections */
+export interface PathSet {
+  [stopId: string]: Set < string > ;
+}
+
 /* All route types */
 export enum Route {
   ONE = "1",

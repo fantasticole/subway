@@ -10,7 +10,6 @@ import {
   Station as StationData,
   Route as RouteData,
   Train,
-  TrainStop,
 } from "./utils/interfaces";
 
 import Station from "./Station/Station";
@@ -72,16 +71,27 @@ function App() {
     if (socketInstance) {
       const onConnect = () => setIsConnected(true);
       const onDisconnect = () => setIsConnected(false);
+      const onStreamLine = (lines: Train[]) => setTrains(lines);
 
       socketInstance.on('connect', onConnect);
       socketInstance.on('disconnect', onDisconnect);
+      socketInstance.on('streamline', onStreamLine);
 
       return () => {
         socketInstance.off('connect', onConnect);
         socketInstance.off('disconnect', onDisconnect);
+        socketInstance.off('streamline', onStreamLine);
       };
     }
   }, [socketInstance]);
+
+  // Stream the selected route if we're connected to the socket
+  // Only update if the route changes & the socket is connected
+  useEffect(() => {
+    if (socketInstance && isConnected) {
+      socketInstance.emit('streamline', selectedRoute);
+    }
+  }, [isConnected, selectedRoute, socketInstance]);
 
   return (
     <div className="App">
@@ -117,6 +127,7 @@ function App() {
         </div>
         <Map highlights={highlights}
              selectedRoute={selectedRoute}
+             trains={trains}
              autoSize />
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>

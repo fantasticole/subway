@@ -21,6 +21,7 @@ const HIGHLIGHTS = {
 describe('Map', () => {
 	beforeEach(async () => {
 		await waitFor(() => render(<Map highlights={HIGHLIGHTS}
+																		trains={[MOCK_TRAIN]}
 																		selectedRoute={Route.A} />));
 	});
 

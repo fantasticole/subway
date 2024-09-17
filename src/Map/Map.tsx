@@ -1,16 +1,15 @@
 import React, { useMemo, useEffect, useState, useCallback } from "react";
-import { io, Socket } from "socket.io-client";
 
-import { calculateLatitude, calculateLongitude } from "../utils/stationData";
+import { calculateLatitude, calculateLongitude, getRouteLines } from "../utils/stationData";
 import {
   AllStationsMap,
   Location,
   NextStop,
+  PathSet,
   Route,
   StationMeta,
   Train,
   TrainColorMap,
-  TrainStop,
 } from "../utils/interfaces";
 
 import Stop from "../Stop/Stop";
@@ -22,15 +21,6 @@ export interface highlightMap {
   [stationId: string]: string;
 }
 
-export interface Path {
-  before ? : string | undefined;
-  after ? : string | undefined;
-}
-
-export interface PathSet {
-  [stopId: string]: Set < string > ;
-}
-
 /* ID & location of a stop */
 type StopMeta = {
   id: string;
@@ -40,6 +30,7 @@ type StopMeta = {
 interface MapParams {
   // Station IDs to highlight with a specified className
   highlights: highlightMap;
+  trains: Train[];
   selectedRoute: Route;
   autoSize ? : boolean;
 }
@@ -55,63 +46,9 @@ const getDimensions = (borderWidth: number = DEFAULT_BORDER_WIDTH) => ({
   height: window.innerHeight - (2 * borderWidth),
 });
 
-function getRouteLines(trains: Train[]) {
-  const pathSet: PathSet = {};
-  trains.forEach(({ stops, direction }: Train) => {
-    stops.forEach(({ stop_id }: TrainStop, i: number) => {
-      if (!pathSet[stop_id]) {
-        pathSet[stop_id] = new Set < string > ();
-      }
-      if (stops[i - 1]) {
-        pathSet[stop_id].add(stops[i - 1].stop_id);
-      }
-      if (stops[i + 1]) {
-        pathSet[stop_id].add(stops[i + 1].stop_id);
-      }
-    });
-  });
-  return pathSet;
-}
-
-function Map({ highlights, autoSize, selectedRoute }: MapParams) {
+function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
   const [height, setHeight] = useState(autoSize ? getDimensions().height : DEFAULT_MAP_HEIGHT);
   const [width, setWidth] = useState(autoSize ? getDimensions().width : DEFAULT_MAP_WIDTH);
-  const [socketInstance, setSocketInstance] = useState < Socket > ();
-  const [isConnected, setIsConnected] = useState < boolean > (false);
-  const [trains, setTrains] = useState < Train[] > ([]);
-  const [trainLines, setTrainLines] = useState < PathSet > ({});
-
-  useEffect(() => {
-    const socket = io(`http://127.0.0.1:5000/${selectedRoute}`, {
-      withCredentials: true,
-      transports: ["websocket"],
-    });
-
-    setSocketInstance(socket);
-  }, [selectedRoute]);
-
-  // If there's a socket instance, set listeners & event handlers
-  // Remvoe them when no longer mounted
-  useEffect(() => {
-    if (socketInstance) {
-      const onConnect = () => setIsConnected(true);
-      const onDisconnect = () => setIsConnected(false);
-      const onStreamLine = (lines: Train[]) => {
-        setTrains(lines);
-        setTrainLines(getRouteLines(lines))
-      }
-
-      socketInstance.on('connect', onConnect);
-      socketInstance.on('disconnect', onDisconnect);
-      socketInstance.on('streamline', onStreamLine);
-
-      return () => {
-        socketInstance.off('connect', onConnect);
-        socketInstance.off('disconnect', onDisconnect);
-        socketInstance.off('streamline', onStreamLine);
-      };
-    }
-  }, [socketInstance]);
 
   useEffect(() => {
     function handleResize() {
@@ -154,9 +91,14 @@ function Map({ highlights, autoSize, selectedRoute }: MapParams) {
     };
   }, [height, scaleLocation]);
 
+  const trainLines: PathSet = useMemo(
+    () => getRouteLines(trains),
+    [trains]
+  );
+
   const mapLines: Array < StopMeta[] > = useMemo(
     () => Object.entries(trainLines).map(([pivot, trainLineSet]) => {
-      const stops = Array.from(trainLineSet.keys());
+      const stops: string[] = Array.from(trainLineSet.keys());
 
       const fromMeta = generateMeta(pivot);
       const toMetaList = stops.map(generateMeta).filter(meta => !!meta);

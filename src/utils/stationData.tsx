@@ -1,4 +1,5 @@
 import allStations from "./allStations.json";
+import { PathSet, Train, TrainStop } from "./interfaces";
 
 // Calculated via getStationEdges
 /* Lowest latitude from allStations.json */
@@ -44,4 +45,23 @@ export function getStationEdges() {
 		highestLat,
 		highestLon,
 	};
+}
+
+/* Calculate station connections from train list */
+export function getRouteLines(trains: Train[]) {
+	const pathSet: PathSet = {};
+	trains.forEach(({ stops, direction }: Train) => {
+		stops.forEach(({ stop_id }: TrainStop, i: number) => {
+			if (!pathSet[stop_id]) {
+				pathSet[stop_id] = new Set < string > ();
+			}
+			if (stops[i - 1]) {
+				pathSet[stop_id].add(stops[i - 1].stop_id);
+			}
+			if (stops[i + 1]) {
+				pathSet[stop_id].add(stops[i + 1].stop_id);
+			}
+		});
+	});
+	return pathSet;
 }
