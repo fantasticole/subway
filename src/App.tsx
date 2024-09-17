@@ -15,7 +15,7 @@ import {
 
 import Station from "./Station/Station";
 import Route from "./Route/Route";
-import Map, { highlightMap, PathMap } from "./Map/Map";
+import Map, { highlightMap } from "./Map/Map";
 
 import './App.css';
 import './variables.css';

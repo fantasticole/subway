@@ -27,8 +27,8 @@ export interface Path {
   after ? : string | undefined;
 }
 
-export interface PathMap {
-  [stopId: string]: Path;
+export interface PathSet {
+  [stopId: string]: Set < string > ;
 }
 
 /* ID & location of a stop */
@@ -56,28 +56,21 @@ const getDimensions = (borderWidth: number = DEFAULT_BORDER_WIDTH) => ({
 });
 
 function getRouteLines(trains: Train[]) {
-  const pathMap: PathMap = {};
+  const pathSet: PathSet = {};
   trains.forEach(({ stops, direction }: Train) => {
     stops.forEach(({ stop_id }: TrainStop, i: number) => {
-      const current = { ...pathMap[stop_id] };
+      if (!pathSet[stop_id]) {
+        pathSet[stop_id] = new Set < string > ();
+      }
       if (stops[i - 1]) {
-        if (direction === 'S') {
-          current.before = stops[i - 1].stop_id;
-        } else {
-          current.after = stops[i - 1].stop_id;
-        }
+        pathSet[stop_id].add(stops[i - 1].stop_id);
       }
       if (stops[i + 1]) {
-        if (direction === 'S') {
-          current.after = stops[i + 1].stop_id;
-        } else {
-          current.before = stops[i + 1].stop_id;
-        }
+        pathSet[stop_id].add(stops[i + 1].stop_id);
       }
-      pathMap[stop_id] = current;
     });
   });
-  return pathMap;
+  return pathSet;
 }
 
 function Map({ highlights, autoSize, selectedRoute }: MapParams) {
@@ -86,7 +79,7 @@ function Map({ highlights, autoSize, selectedRoute }: MapParams) {
   const [socketInstance, setSocketInstance] = useState < Socket > ();
   const [isConnected, setIsConnected] = useState < boolean > (false);
   const [trains, setTrains] = useState < Train[] > ([]);
-  const [trainLines, setTrainLines] = useState < PathMap > ({});
+  const [trainLines, setTrainLines] = useState < PathSet > ({});
 
   useEffect(() => {
     const socket = io(`http://127.0.0.1:5000/${selectedRoute}`, {
@@ -105,7 +98,7 @@ function Map({ highlights, autoSize, selectedRoute }: MapParams) {
       const onDisconnect = () => setIsConnected(false);
       const onStreamLine = (lines: Train[]) => {
         setTrains(lines);
-        setTrainLines(getRouteLines(lines));
+        setTrainLines(getRouteLines(lines))
       }
 
       socketInstance.on('connect', onConnect);
@@ -142,15 +135,19 @@ function Map({ highlights, autoSize, selectedRoute }: MapParams) {
     borderWidth: DEFAULT_BORDER_WIDTH,
   };
 
-  const scaleLocation = useCallback(([lat, lon]: Location): Location => ([
-    calculateLatitude((height - stopHeight), lat),
-    calculateLongitude((width - stopWidth), lon),
+  const scaleLocation = useCallback(([lat, lon]: Location, offset = false): Location => ([
+    calculateLatitude((offset ? height - stopHeight : height), lat),
+    calculateLongitude((offset ? width - stopWidth : width), lon),
   ]), [height, stopHeight, width, stopWidth]);
 
   const generateMeta = useCallback((id: string): StopMeta | undefined => {
-    const stationMeta = AllStationsMap[id];
-    if (!stationMeta) return;
-    const [lat, lon] = scaleLocation(stationMeta.location);
+    let location = (AllStationsMap[id] || {}).location;
+    if (!location) {
+      const stationMeta = Object.values(AllStationsMap).find(({ stops }) => !!stops[id]);
+      if (!stationMeta) return;
+      location = stationMeta.stops[id];
+    }
+    const [lat, lon] = scaleLocation(location);
     return {
       id,
       location: [(height - lat), lon]
@@ -158,14 +155,17 @@ function Map({ highlights, autoSize, selectedRoute }: MapParams) {
   }, [height, scaleLocation]);
 
   const mapLines: Array < StopMeta[] > = useMemo(
-    () => Object.values(trainLines).map(stopPosition => {
-      if (!stopPosition.before || !stopPosition.after) return null;
+    () => Object.entries(trainLines).map(([pivot, trainLineSet]) => {
+      const stops = Array.from(trainLineSet.keys());
 
-      const beforeMeta = generateMeta(stopPosition.before);
-      const afterMeta = generateMeta(stopPosition.after);
+      const fromMeta = generateMeta(pivot);
+      const toMetaList = stops.map(generateMeta).filter(meta => !!meta);
 
-      return (!beforeMeta || !afterMeta) ? null : [beforeMeta, afterMeta];
-    }).filter(line => line !== null),
+      if (!fromMeta || toMetaList.length === 0) return null;
+      const lines = toMetaList.map(toMeta => ([fromMeta!, toMeta!] as StopMeta[]));
+
+      return lines;
+    }).flat().filter(line => line !== null),
     [trainLines, generateMeta]
   );
 
@@ -177,7 +177,7 @@ function Map({ highlights, autoSize, selectedRoute }: MapParams) {
 
       return {
         ...station,
-        location: scaleLocation(station.location),
+        location: scaleLocation(station.location, true),
         incoming: incomingTrains,
       };
     }),
