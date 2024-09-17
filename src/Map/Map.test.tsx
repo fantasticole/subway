@@ -3,6 +3,7 @@ import '@testing-library/jest-dom'
 import React from "react";
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, test } from '@jest/globals';
+import { Socket } from "socket.io-client";
 
 import { Route, NextStop } from "../utils/interfaces";
 import { MOCK_TRAIN } from '../utils/mock_data';
@@ -19,7 +20,8 @@ const HIGHLIGHTS = {
 
 describe('Map', () => {
 	beforeEach(async () => {
-		await waitFor(() => render(<Map highlights={HIGHLIGHTS} incoming={[MOCK_TRAIN]} lines={{}}/>));
+		await waitFor(() => render(<Map highlights={HIGHLIGHTS}
+																		selectedRoute={Route.A} />));
 	});
 
 	test('renders map', async () => {

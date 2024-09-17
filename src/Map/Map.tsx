@@ -1,13 +1,16 @@
 import React, { useMemo, useEffect, useState, useCallback } from "react";
+import { io, Socket } from "socket.io-client";
 
 import { calculateLatitude, calculateLongitude } from "../utils/stationData";
 import {
   AllStationsMap,
   Location,
   NextStop,
+  Route,
   StationMeta,
   Train,
-  TrainColorMap
+  TrainColorMap,
+  TrainStop,
 } from "../utils/interfaces";
 
 import Stop from "../Stop/Stop";
@@ -37,9 +40,8 @@ type StopMeta = {
 interface MapParams {
   // Station IDs to highlight with a specified className
   highlights: highlightMap;
-  incoming: Train[];
+  selectedRoute: Route;
   autoSize ? : boolean;
-  lines: PathMap;
 }
 
 const DEFAULT_MAP_HEIGHT = 700;
@@ -53,9 +55,70 @@ const getDimensions = (borderWidth: number = DEFAULT_BORDER_WIDTH) => ({
   height: window.innerHeight - (2 * borderWidth),
 });
 
-function Map({ highlights, autoSize, incoming, lines }: MapParams) {
+function getAll(lines: Train[]) {
+  const maybeAllStations: PathMap = {};
+  lines.forEach(({ stops, direction }: Train) => {
+    stops.forEach(({ stop_id }: TrainStop, i: number) => {
+      const current = { ...maybeAllStations[stop_id] };
+      if (stops[i - 1]) {
+        if (direction === 'S') {
+          current.before = stops[i - 1].stop_id;
+        } else {
+          current.after = stops[i - 1].stop_id;
+        }
+      }
+      if (stops[i + 1]) {
+        if (direction === 'S') {
+          current.after = stops[i + 1].stop_id;
+        } else {
+          current.before = stops[i + 1].stop_id;
+        }
+      }
+      maybeAllStations[stop_id] = current;
+    });
+  });
+  return maybeAllStations;
+}
+
+function Map({ highlights, autoSize, selectedRoute }: MapParams) {
   const [height, setHeight] = useState(autoSize ? getDimensions().height : DEFAULT_MAP_HEIGHT);
   const [width, setWidth] = useState(autoSize ? getDimensions().width : DEFAULT_MAP_WIDTH);
+  const [socketInstance, setSocketInstance] = useState < Socket > ();
+  const [isConnected, setIsConnected] = useState < boolean > (false);
+  const [trains, setTrains] = useState < Train[] > ([]);
+  const [trainLines, setTrainLines] = useState < PathMap > ({});
+
+  useEffect(() => {
+    const socket = io(`http://127.0.0.1:5000/${selectedRoute}`, {
+      withCredentials: true,
+      transports: ["websocket"],
+    });
+
+    setSocketInstance(socket);
+  }, [selectedRoute]);
+
+  // If there's a socket instance, set listeners & event handlers
+  // Remvoe them when no longer mounted
+  useEffect(() => {
+    if (socketInstance) {
+      const onConnect = () => setIsConnected(true);
+      const onDisconnect = () => setIsConnected(false);
+      const onStreamLine = (lines: Train[]) => {
+        setTrains(lines);
+        setTrainLines(getAll(lines));
+      }
+
+      socketInstance.on('connect', onConnect);
+      socketInstance.on('disconnect', onDisconnect);
+      socketInstance.on('streamline', onStreamLine);
+
+      return () => {
+        socketInstance.off('connect', onConnect);
+        socketInstance.off('disconnect', onDisconnect);
+        socketInstance.off('streamline', onStreamLine);
+      };
+    }
+  }, [socketInstance]);
 
   useEffect(() => {
     function handleResize() {
@@ -95,7 +158,7 @@ function Map({ highlights, autoSize, incoming, lines }: MapParams) {
   }, [height, scaleLocation]);
 
   const mapLines: Array < StopMeta[] > = useMemo(
-    () => Object.values(lines).map(stopPosition => {
+    () => Object.values(trainLines).map(stopPosition => {
       if (!stopPosition.before || !stopPosition.after) return null;
 
       const beforeMeta = generateMeta(stopPosition.before);
@@ -103,13 +166,13 @@ function Map({ highlights, autoSize, incoming, lines }: MapParams) {
 
       return (!beforeMeta || !afterMeta) ? null : [beforeMeta, afterMeta];
     }).filter(line => line !== null),
-    [lines, generateMeta]
+    [trainLines, generateMeta]
   );
 
   const stationPlots: StationMeta[] = useMemo(
     () => Object.values(AllStationsMap).map(station => {
       const stationStops = Object.keys(station.stops);
-      const stops = incoming.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
+      const stops = trains.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
       const incomingTrains = stops.filter(({ stop_id }) => (stop_id === station.id || stationStops.includes(stop_id)));
 
       return {
@@ -118,7 +181,7 @@ function Map({ highlights, autoSize, incoming, lines }: MapParams) {
         incoming: incomingTrains,
       };
     }),
-    [incoming, scaleLocation]
+    [trains, scaleLocation]
   );
 
   const getTrainPosition = useCallback(({ next_stop }: Train): Location | undefined => {
@@ -129,16 +192,16 @@ function Map({ highlights, autoSize, incoming, lines }: MapParams) {
     return station.location;
   }, [stationPlots])
 
-  const trains: Array < { train: Train;position: Location } > = useMemo(
-    () => (incoming
+  const trainList: Array < { train: Train;position: Location } > = useMemo(
+    () => (trains
       // Filter if we don't have a position for this train
       // (Linter didn't like this coming after the map)
       .filter((train) => (!!getTrainPosition(train)))
       .map(train => ({ train, position: getTrainPosition(train) ! }))),
-    [incoming, getTrainPosition]
+    [trains, getTrainPosition]
   );
 
-  const stroke = incoming[0] ? TrainColorMap[incoming[0].route] : 'black';
+  const stroke = TrainColorMap[selectedRoute];
 
   const svgStyle = {
     stroke,
@@ -168,7 +231,7 @@ function Map({ highlights, autoSize, incoming, lines }: MapParams) {
               data-testid="stop"
               highlightClass={highlights[stationMeta.id] || ''} />
         ))}
-      {trains.map(({train, position}, i) => (
+      {trainList.map(({train, position}, i) => (
         // include index in key because sometimes the same trip id comes through multiple times
         <TrainComponent key={train.trip_id + i}
                         train={train}

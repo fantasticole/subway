@@ -20,31 +20,6 @@ import Map, { highlightMap, PathMap } from "./Map/Map";
 import './App.css';
 import './variables.css';
 
-function getAll(lines: Train[]) {
-  const maybeAllStations: PathMap = {};
-  lines.forEach(({ stops, direction }: Train) => {
-    stops.forEach(({ stop_id }: TrainStop, i: number) => {
-      const current = { ...maybeAllStations[stop_id] };
-      if (stops[i - 1]) {
-        if (direction === 'S') {
-          current.before = stops[i - 1].stop_id;
-        } else {
-          current.after = stops[i - 1].stop_id;
-        }
-      }
-      if (stops[i + 1]) {
-        if (direction === 'S') {
-          current.after = stops[i + 1].stop_id;
-        } else {
-          current.before = stops[i + 1].stop_id;
-        }
-      }
-      maybeAllStations[stop_id] = current;
-    });
-  });
-  return maybeAllStations;
-}
-
 function App() {
   const [updated, setUpdated] = useState < string > ();
   const [routes, setRoutes] = useState < RouteData[] > ([]);
@@ -55,7 +30,6 @@ function App() {
   const [onlySelected, setOnlySelected] = useState < boolean > (true);
   const [socketInstance, setSocketInstance] = useState < Socket > ();
   const [isConnected, setIsConnected] = useState < boolean > (false);
-  const [trainLines, setTrainLines] = useState < PathMap > ({});
 
   useEffect(() => {
     fetchLine(onlySelected ? selectedRoute : undefined)
@@ -98,30 +72,16 @@ function App() {
     if (socketInstance) {
       const onConnect = () => setIsConnected(true);
       const onDisconnect = () => setIsConnected(false);
-      const onStreamLine = (lines: Train[]) => {
-        setTrains(lines);
-        setTrainLines(getAll(lines));
-      }
 
       socketInstance.on('connect', onConnect);
       socketInstance.on('disconnect', onDisconnect);
-      socketInstance.on('streamline', onStreamLine);
 
       return () => {
         socketInstance.off('connect', onConnect);
         socketInstance.off('disconnect', onDisconnect);
-        socketInstance.off('streamline', onStreamLine);
       };
     }
   }, [socketInstance]);
-
-  // Stream the selected route if we're connected to the socker
-  // Only update if the route changes & the socket is connected
-  useEffect(() => {
-    if (socketInstance && isConnected) {
-      socketInstance.emit('streamline', selectedRoute);
-    }
-  }, [isConnected, selectedRoute, socketInstance]);
 
   return (
     <div className="App">
@@ -156,8 +116,7 @@ function App() {
           </label>
         </div>
         <Map highlights={highlights}
-             incoming={trains}
-             lines={trainLines}
+             selectedRoute={selectedRoute}
              autoSize />
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>
