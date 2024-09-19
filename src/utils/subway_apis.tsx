@@ -1,36 +1,46 @@
-import { StationList, RouteList } from "./interfaces";
+import { StationList, RouteList, Route, AllStationsResponse, ArrivalList, LineList, Train } from "./interfaces";
 
-export const fetchSubwayApi = async (): Promise < string | void > => {
-  return await fetch("/")
-    .then(res => res.text())
+async function callAPI(url: string): Promise < any > {
+  return await fetch(url)
+    .then(res => res.json())
+    .then((response) => ({
+      ...response,
+      updated: new Date(response.updated)
+    }))
     .catch(error => console.error(error));
 }
 
 export const fetchNearestStations = async (latitude: number, longitude: number): Promise < StationList | void > => {
-  return await fetch(`/by-location?lat=${latitude}&lon=${longitude}`)
-    .then(res => res.text())
-    .then(text => (JSON.parse(text)))
-    .catch(error => console.error(error));
+  return await callAPI(`by-location?lat=${latitude}&lon=${longitude}`)
 }
 
-export const fetchRoute = async (route: string): Promise < StationList | void > => {
-  return await fetch(`/by-route/${route}`)
-    .then(res => res.text())
-    .then(text => (JSON.parse(text)))
-    .catch(error => console.error(error));
+export const fetchRoute = async (route: Route): Promise < StationList | void > => {
+  return await callAPI(`route/${route}`)
 }
 
-export const fetchRoutes = async (): Promise < RouteList | void > => {
-  return await fetch("/routes")
-    .then(res => res.text())
-    .then(text => (JSON.parse(text)))
-    .catch(error => console.error(error));
+export const fetchCurrentRoutes = async (): Promise < RouteList | void > => {
+  return await callAPI('routes')
 }
 
-export const fetchStations = async (ids: string[]): Promise < StationList | void > => {
-  const idString = ids.join(",");
-  return await fetch(`/by-id/${idString}`)
-    .then(res => res.text())
-    .then(text => (JSON.parse(text)))
+export const fetchStations = async (ids ? : string[]): Promise < StationList | void > => {
+  const idString = ids && ids.length ? ids.join(",") : '';
+  return await callAPI(`by-id/${idString}`)
+}
+
+export const fetchAllStations = async (): Promise < AllStationsResponse | void > => {
+  return await callAPI('stations')
+}
+
+export const fetchArrivals = async (): Promise < ArrivalList | void > => {
+  return await callAPI('arrivals')
+}
+
+export const fetchLine = async (line ? : Route): Promise < LineList | void > => {
+  return await callAPI(line ? `lines/${line}` : 'lines')
+}
+
+export const fetchTrain = async (train: string): Promise < Train | void > => {
+  return await fetch(`train/${train}`)
+    .then(res => res.json())
     .catch(error => console.error(error));
 }

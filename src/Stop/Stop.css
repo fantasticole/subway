@@ -38,6 +38,7 @@
 		background-color: var(--blue);
 	}
 
+	&.trainGS,
 	&.trainFS,
 	&.trainH,
 	&.trainS {

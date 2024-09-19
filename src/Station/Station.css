@@ -1,19 +1,32 @@
 .station {
   border: 1px solid grey;
+  border-bottom: none;
   display: flex;
   flex-direction: column;
   min-width: 20em;
-  padding: 10px;
 
   .name {
     border-bottom: 1px solid grey;
-    padding-bottom: 1em;
     margin: 0.5em 0;
+    padding: 10px;
+  }
+
+  h4 {
+    margin: 0.5em 0;
+    padding: 10px;
   }
 
   .list {
     max-height: 15em;
     overflow: scroll;
+    border-top: 1px solid grey;
+    border-bottom: 1px solid grey;
+  }
+
+  .south {
+    .list {
+      border-bottom: none;
+    }
   }
 
   .incoming {
