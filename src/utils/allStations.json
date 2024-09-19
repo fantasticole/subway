@@ -6533,14 +6533,6 @@
 			"H17": [0, 0]
 		}
 	},
-	"H19": {
-		"id": "H19",
-		"location": [0, 0],
-		"name": "Broad Channel and Rockaway Shuttle",
-		"stops": {
-			"H19": [0, 0]
-		}
-	},
 	"H18": {
 		"id": "H18",
 		"location": [0, 0],
@@ -6555,14 +6547,6 @@
 		"name": "Broad Channel and Beach 67 St",
 		"stops": {
 			"H05": [0, 0]
-		}
-	},
-	"A29": {
-		"id": "A29",
-		"location": [0, 0],
-		"name": "St George",
-		"stops": {
-			"A29": [0, 0]
 		}
 	},
 	"A29": {

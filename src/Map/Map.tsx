@@ -121,6 +121,9 @@ function Map({ autoSize, selectedRoute, stations, trains }: MapParams) {
 
   const stationPlots: StationMeta[] = useMemo(
     () => Object.values(AllStationsMap).map(station => {
+      if (station.location[0] === 0 && station.location[1] === 0) {
+        return station;
+      }
       return {
         ...station,
         location: scaleLocation(station.location, true),
