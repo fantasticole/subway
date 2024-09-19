@@ -173,6 +173,30 @@ def get_this_line(trips):
             })
 
     return this_line
+
+def format_stations(stations):
+    station_list = []
+
+    for station in stations:
+        formatted = {
+            'N': [
+                {'route': arrival['route'],
+                'time': format_time(arrival['time']),} for arrival in station['N']
+            ],
+            'S': [
+                {'route': arrival['route'],
+                'time': format_time(arrival['time']),} for arrival in station['S']
+            ],
+            'id': station['id'],
+            'last_update': format_time(station['last_update']),
+            'location': station['location'],
+            'name': station['name'],
+            'routes': station['routes'],
+            'stops': station['stops'],
+        }
+        station_list.append(formatted)
+
+    return station_list
  
 def refresh_all():
     global last_updated_time
@@ -253,11 +277,10 @@ def disconnected():
             thread_event.clear()
             thread.join()
 
-@socketio.on('get trip')
-def on_get(trip_id):
-    print('get ', trip_id)
-    trip = get_trip_by_id(trip_id)
-    emit('trip', str(trip))
+@socketio.on('stations')
+def on_stations(route_id):
+    stations = format_stations(mta.get_by_route(route_id))
+    emit('stations', stations)
 
 def linestream(event):
     global thread
