@@ -76,7 +76,7 @@ class Mtapi(object):
         self._update()
 
     def _update(self):
-        print('updating...')
+        # print('updating...')
         self._last_update = datetime.datetime.now(TZ)
 
         # create working copy for thread safety
