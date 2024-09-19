@@ -48,7 +48,7 @@ export function getStationEdges() {
 }
 
 /* Calculate station connections from train list */
-export function getRouteLines(trains: Train[]) {
+export function getRouteLines(trains: Train[]): PathSet {
 	const pathSet: PathSet = {};
 	trains.forEach(({ stops, direction }: Train) => {
 		stops.forEach(({ stop_id }: TrainStop, i: number) => {

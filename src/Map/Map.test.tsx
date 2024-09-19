@@ -18,10 +18,13 @@ const HIGHLIGHTS = {
 	"115": "class",
 }
 
+const MOCK_LINE_MAP = {
+	[Route.A]: [MOCK_TRAIN] };
+
 describe('Map', () => {
 	beforeEach(async () => {
 		await waitFor(() => render(<Map highlights={HIGHLIGHTS}
-																		trains={[MOCK_TRAIN]}
+																		trains={MOCK_LINE_MAP}
 																		selectedRoute={Route.A} />));
 	});
 

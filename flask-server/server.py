@@ -43,6 +43,7 @@ RouteMap = {
     'B': 'F',
     'D': 'F',
     'F': 'F',
+    'FX': 'F',
     'M': 'F',
     'G': 'G',
     'J': 'J',
@@ -172,6 +173,29 @@ def get_this_line(trips):
             })
 
     return this_line
+ 
+def refresh_all():
+    [feed.refresh() for feed in NYCTFeeds]
+    mta._update()
+
+def map_feeds(line_id=None):
+    feed_map = {}
+
+    if not line_id:
+        for feed in NYCTFeeds:
+            keys = list(feed.trip_replacement_periods.keys())
+            # These keys don't come through on trip_replacement_periods
+            all_keys = keys.extend(['6X', '7X', 'FX'])
+            for route in keys:
+                filtered_trips = feed.filter_trips(line_id=route)
+                feed_map[route] = get_this_line(filtered_trips)
+    else:
+        route = RouteMap[line_id]
+        feed = NYCTFeedMap[route]
+        trip_list = feed.filter_trips(line_id=line_id)
+        feed_map[route] = get_this_line(trip_list)
+
+    return feed_map;
 
 async def refresh():
     global last_updated_time
@@ -181,10 +205,6 @@ async def refresh():
         print(arrow.get(timer), 'refreshing')
         await asyncio.gather(*(feed.refresh_async() for feed in NYCTFeeds))
         print(str(arrow.utcnow()), 'refresh finished in', str(datetime.now() - timer))
-
-def refresh_all():
-    [feed.refresh() for feed in NYCTFeeds]
-    mta._update()
 
 async def get_arrivals(stations):
     print(str(arrow.utcnow()), 'getting arrivals')
@@ -238,14 +258,14 @@ def on_get(trip_id):
     trip = get_trip_by_id(trip_id)
     emit('trip', str(trip))
 
-def linestream(line_id, event):
+def linestream(event):
     global thread
     count = 0
     try:
         while event.is_set():
             count += 1
             refresh_all()
-            update = get_trip_update(line_id)
+            update = map_feeds()
             socketio.emit('streamline', update)
             socketio.sleep(1)
     finally:
@@ -253,7 +273,7 @@ def linestream(line_id, event):
         thread = None
 
 @socketio.on('streamline')
-def streamline(line_id):
+def streamline():
     print('streamline')
     global thread
     # lock the thread if it isn't already
@@ -264,11 +284,11 @@ def streamline(line_id):
             thread.join()
             # signal the thread to start
             thread_event.set()
-            thread = socketio.start_background_task(linestream, line_id, thread_event)
+            thread = socketio.start_background_task(linestream, thread_event)
         if thread is None:
             # signal the thread to start
             thread_event.set()
-            thread = socketio.start_background_task(linestream, line_id, thread_event)
+            thread = socketio.start_background_task(linestream, thread_event)
 
 @app.route('/arrivals')
 async def arrivals():
@@ -339,16 +359,10 @@ def stations():
 @app.route('/lines/<line_id>')
 async def line(line_id):
     trips = []
-
-    if not line_id:
-        for feed in NYCTFeeds:
-            trips += feed.trips
-        this_line = get_this_line(trips)
-    else:
-        this_line = get_trip_update(line_id)
+    all_lines = map_feeds(line_id)
 
     response = jsonify({
-        'lines': this_line,
+        'lines': all_lines,
         'updated': last_updated_time
         })
 

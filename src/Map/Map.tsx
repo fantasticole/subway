@@ -7,6 +7,7 @@ import {
   NextStop,
   PathSet,
   Route,
+  TrainMap,
   StationMeta,
   Train,
   TrainColorMap,
@@ -30,7 +31,7 @@ type StopMeta = {
 interface MapParams {
   // Station IDs to highlight with a specified className
   highlights: highlightMap;
-  trains: Train[];
+  trains: TrainMap;
   selectedRoute: Route;
   autoSize ? : boolean;
 }
@@ -93,8 +94,8 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
   }, [height, scaleLocation]);
 
   const trainLines: PathSet = useMemo(
-    () => getRouteLines(trains),
-    [trains]
+    () => getRouteLines(trains[selectedRoute] || []),
+    [trains, selectedRoute]
   );
 
   const mapLines: Array < StopMeta[] > = useMemo(
@@ -115,7 +116,7 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
   const stationPlots: StationMeta[] = useMemo(
     () => Object.values(AllStationsMap).map(station => {
       const stationStops = Object.keys(station.stops);
-      const stops = trains.map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
+      const stops = (trains[selectedRoute] || []).map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
       const incomingTrains = stops.filter(({ stop_id }) => (stop_id === station.id || stationStops.includes(stop_id)));
 
       return {
@@ -124,7 +125,7 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
         incoming: incomingTrains,
       };
     }),
-    [trains, scaleLocation]
+    [trains, scaleLocation, selectedRoute]
   );
 
   const getTrainPosition = useCallback(({ next_stop }: Train): Location | undefined => {
@@ -136,12 +137,12 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
   }, [stationPlots])
 
   const trainList: Array < { train: Train;position: Location } > = useMemo(
-    () => (trains
+    () => ((trains[selectedRoute] || [])
       // Filter if we don't have a position for this train
       // (Linter didn't like this coming after the map)
       .filter((train) => (!!getTrainPosition(train)))
       .map(train => ({ train, position: getTrainPosition(train) ! }))),
-    [trains, getTrainPosition]
+    [trains, getTrainPosition, selectedRoute]
   );
 
   const stroke = TrainColorMap[selectedRoute];

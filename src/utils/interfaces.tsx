@@ -109,8 +109,13 @@ export interface Train {
 
 /* Format for a list of lines */
 export interface LineList {
-  lines: Train[];
+  lines: TrainMap;
   updated: Date;
+}
+
+/* Format for a map of routes and their trains */
+export interface TrainMap {
+  [route: string]: Train[]
 }
 
 /* Format for data about the next stop for a train */
@@ -153,8 +158,10 @@ export enum Route {
     Q = "Q",
     R = "R",
     S = "S",
+    SF = "SF", // Franklin Ave S
     SI = "SI", // Staten Island Rail
     SIR = "SIR", // Staten Island Rail
+    SR = "SR", // Far Rockaway S
     SS = "SS", // Staten Island Rail
     W = "W",
     Z = "Z",
@@ -204,8 +211,10 @@ export const TrainColorMap: Record < Route, Color > = {
   [Route.Q]: Color.YELLOW,
   [Route.R]: Color.YELLOW,
   [Route.S]: Color.SLATE,
+  [Route.SF]: Color.SLATE,
   [Route.SI]: Color.SEA,
   [Route.SIR]: Color.SEA,
+  [Route.SR]: Color.SLATE,
   [Route.SS]: Color.SEA,
   [Route.W]: Color.YELLOW,
   [Route.Z]: Color.BROWN,

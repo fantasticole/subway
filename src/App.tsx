@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 
 import {
@@ -7,9 +7,9 @@ import {
   fetchRoute,
 } from "./utils/subway_apis";
 import {
-  Station as StationData,
   Route as RouteData,
-  Train,
+  Station as StationData,
+  TrainMap,
 } from "./utils/interfaces";
 
 import Station from "./Station/Station";
@@ -23,7 +23,7 @@ function App() {
   const [updated, setUpdated] = useState < string > ();
   const [routes, setRoutes] = useState < RouteData[] > ([]);
   const [stations, setStations] = useState < StationData[] > ();
-  const [trains, setTrains] = useState < Train[] > ([]);
+  const [trains, setTrains] = useState < TrainMap > ({});
   const [highlights, setHighlights] = useState < highlightMap > ({});
   const [selectedRoute, setSelectedRoute] = useState < RouteData > (RouteData.A);
   const [onlySelected, setOnlySelected] = useState < boolean > (true);
@@ -71,7 +71,7 @@ function App() {
     if (socketInstance) {
       const onConnect = () => setIsConnected(true);
       const onDisconnect = () => setIsConnected(false);
-      const onStreamLine = (lines: Train[]) => setTrains(lines);
+      const onStreamLine = (map: TrainMap) => setTrains(map);
 
       socketInstance.on('connect', onConnect);
       socketInstance.on('disconnect', onDisconnect);
@@ -85,11 +85,18 @@ function App() {
     }
   }, [socketInstance]);
 
+  const trainList: TrainMap = useMemo(
+    () => (onlySelected ? {
+      [selectedRoute]: (trains[selectedRoute] || [])
+    } : trains),
+    [onlySelected, selectedRoute, trains]
+  );
+
   // Stream the selected route if we're connected to the socket
   // Only update if the route changes & the socket is connected
   useEffect(() => {
     if (socketInstance && isConnected) {
-      socketInstance.emit('streamline', selectedRoute);
+      socketInstance.emit('streamline');
     }
   }, [isConnected, selectedRoute, socketInstance]);
 
@@ -127,8 +134,7 @@ function App() {
         </div>
         <Map highlights={highlights}
              selectedRoute={selectedRoute}
-             trains={trains}
-             socket={socketInstance}
+             trains={trainList}
              autoSize />
         <h2>Along the {selectedRoute}</h2>
         <p data-testid="updated">updated: {updated}</p>
