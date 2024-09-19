@@ -1,4 +1,3 @@
-https://github.com/fantasticole/subway.git
 # Running the server
 
 Navigate to the server folder [`/subway/flask-server`]
