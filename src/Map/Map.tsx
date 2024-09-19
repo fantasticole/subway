@@ -42,8 +42,8 @@ const DEFAULT_STOP_WIDTH = 5;
 const DEFAULT_BORDER_WIDTH = 10;
 
 const getDimensions = (borderWidth: number = DEFAULT_BORDER_WIDTH) => ({
-  width: window.innerWidth - (2 * borderWidth),
-  height: window.innerHeight - (2 * borderWidth),
+  width: window.innerWidth - (2 * borderWidth) - 350,
+  height: window.innerHeight - (2 * borderWidth) - 200,
 });
 
 function Map({ autoSize, selectedRoute, stations, trains }: MapParams) {

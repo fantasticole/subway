@@ -45,7 +45,9 @@ function App() {
       const onStream = ({ trains, updated, route, stations }: TrainMapStream) => {
         setTrains(trains);
         setRoutes(Object.keys(trains) as RouteData[]);
-        setUpdated((updated).toString());
+        const date = new Date(updated).toTimeString();
+        const time = date.split(" ")[0];
+        setUpdated(time);
         setStations(stations);
         setSelectedRoute(route);
       }
@@ -88,26 +90,8 @@ function App() {
   return (
     <div className="App">
         <h1>SUBWAY</h1>
-        <div>
-          {socketInstance &&
-            <>
-              <p data-testid="isConnected">isConnected: {`${isConnected}`}</p>
-              {
-                isConnected ?
-                <button onClick={ () => socketInstance.disconnect() }>Disconnect</button> :
-                <button onClick={ () => socketInstance.connect() }>Connect</button>
-              }
-            </>}
-        </div>
         <h2>All Current Routes</h2>
-        <span data-testid="route-list">
-          {routes?.map((route: RouteData, i: number) => (
-            <Route route={route}
-                   key={i}
-                   onClick={() => selectRoute(route)} />
-            ))}
-        </span>
-        <div>
+        <div className="checkbox">
           <label>
             <input
               type="checkbox"
@@ -117,17 +101,30 @@ function App() {
             Only render selected route
           </label>
         </div>
-        <Map stations={stations}
-             selectedRoute={selectedRoute}
-             trains={trainList}
-             autoSize />
-        <h2>Along the {selectedRoute}</h2>
-        <p data-testid="updated">updated: {updated}</p>
-        <span data-testid="station-list" className="stations">
-          {stations?.map((station: StationData, i: number) => (
-            <Station station={station} key={i} />
+        <span data-testid="route-list" className="routeList">
+          {routes?.map((route: RouteData, i: number) => (
+            <Route route={route}
+                   key={i}
+                   onClick={() => selectRoute(route)} />
             ))}
         </span>
+        <div className="container">
+          <Map stations={stations}
+               selectedRoute={selectedRoute}
+               trains={trainList}
+               autoSize />
+          <div className="stationData">
+            <div className="heading">
+              <h3>Along the {selectedRoute}</h3>
+              <span>{updated}</span>
+            </div>
+            <span data-testid="station-list" className="stations">
+              {stations?.map((station: StationData, i: number) => (
+                <Station station={station} key={i} />
+                ))}
+            </span>
+          </div>
+        </div>
     </div>
   );
 }
