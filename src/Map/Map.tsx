@@ -6,20 +6,17 @@ import {
   Location,
   PathSet,
   Route,
-  TrainMap,
+  Station,
   StationMeta,
   Train,
   TrainColorMap,
+  TrainMap,
 } from "../utils/interfaces";
 
 import Stop from "../Stop/Stop";
 import TrainComponent from "../Train/Train";
 
 import './Map.css';
-
-export interface highlightMap {
-  [stationId: string]: string;
-}
 
 /* ID & location of a stop */
 type StopMeta = {
@@ -28,8 +25,7 @@ type StopMeta = {
 }
 
 interface MapParams {
-  // Station IDs to highlight with a specified className
-  highlights: highlightMap;
+  stations: Station[];
   trains: TrainMap;
   selectedRoute: Route;
   autoSize ? : boolean;
@@ -50,7 +46,7 @@ const getDimensions = (borderWidth: number = DEFAULT_BORDER_WIDTH) => ({
   height: window.innerHeight - (2 * borderWidth),
 });
 
-function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
+function Map({ autoSize, selectedRoute, stations, trains }: MapParams) {
   const [height, setHeight] = useState(autoSize ? getDimensions().height : DEFAULT_MAP_HEIGHT);
   const [width, setWidth] = useState(autoSize ? getDimensions().width : DEFAULT_MAP_WIDTH);
 
@@ -141,6 +137,11 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
     return station.location;
   }, [stationPlots])
 
+  const getClassName = useCallback((stationId: string): string => {
+    const station = stations.find(({ id }) => id === stationId);
+    return station ? `train${selectedRoute} highlighted` : '';
+  }, [stations, selectedRoute])
+
   const trainList: Array < { train: Train;position: Location } > = useMemo(
     () => (Object.values(trains).flat()
       // Filter if we don't have a position for this train
@@ -176,7 +177,7 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
               height= {stopHeight}
               width= {stopWidth}
               data-testid="stop"
-              highlightClass={highlights[stationMeta.id] || ''} />
+              highlightClass={getClassName(stationMeta.id)} />
         ))}
       {trainList.map(({train, position}, i) => (
         // include index in key because sometimes the same trip id comes through multiple times

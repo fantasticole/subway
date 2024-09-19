@@ -11,19 +11,13 @@ import allStations from "../utils/allStations.json";
 
 import Map from './Map';
 
-const HIGHLIGHTS = {
-	"112": "class",
-	"113": "class",
-	"114": "class",
-	"115": "class",
-}
-
 const MOCK_LINE_MAP = {
-	[Route.A]: [MOCK_TRAIN] };
+	[Route.A]: [MOCK_TRAIN]
+};
 
 describe('Map', () => {
 	beforeEach(async () => {
-		await waitFor(() => render(<Map highlights={HIGHLIGHTS}
+		await waitFor(() => render(<Map stations={[]}
 																		trains={MOCK_LINE_MAP}
 																		selectedRoute={Route.A} />));
 	});
