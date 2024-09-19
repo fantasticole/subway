@@ -291,22 +291,26 @@ def linestream(event):
             count += 1
             refresh_all()
             train_map = map_feeds()
+            if selected_route is not None:
+                stations = format_stations(mta.get_by_route(selected_route))
+            else:
+                stations = []
             update = {
                 'trains': train_map,
+                'stations': stations,
+                'route': selected_route,
                 'updated': format_time(last_updated_time),
             }
-            stations = format_stations(mta.get_by_route(selected_route))
 
-            socketio.emit('stations', stations)
-            socketio.emit('streamline', update)
+            socketio.emit('stream', update)
             socketio.sleep(1)
     finally:
         event.clear()
         thread = None
 
-@socketio.on('streamline')
-def streamline():
-    print('streamline')
+@socketio.on('stream')
+def stream():
+    print('stream')
     global thread
     # lock the thread if it isn't already
     with thread_lock:

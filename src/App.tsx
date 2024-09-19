@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 
 import {
@@ -42,40 +42,34 @@ function App() {
     if (socketInstance) {
       const onConnect = () => setIsConnected(true);
       const onDisconnect = () => setIsConnected(false);
-      const onStreamLine = ({ trains, updated }: TrainMapStream) => {
+      const onStream = ({ trains, updated, route, stations }: TrainMapStream) => {
         setTrains(trains);
         setRoutes(Object.keys(trains) as RouteData[]);
         setUpdated((updated).toString());
+        setStations(stations);
+        setSelectedRoute(route);
       }
-      const onStations = (stations: StationData[]) => setStations(stations);
 
       socketInstance.on('connect', onConnect);
       socketInstance.on('disconnect', onDisconnect);
-      socketInstance.on('streamline', onStreamLine);
-      socketInstance.on('stations', onStations);
+      socketInstance.on('stream', onStream);
 
       return () => {
         socketInstance.off('connect', onConnect);
         socketInstance.off('disconnect', onDisconnect);
-        socketInstance.off('streamline', onStreamLine);
-        socketInstance.off('stations', onStations);
+        socketInstance.off('stream', onStream);
       };
     }
-  }, [socketInstance, selectedRoute]);
+  }, [socketInstance]);
 
   // Stream the selected route if we're connected to the socket
   // Only update if the route changes & the socket is connected
   useEffect(() => {
     if (socketInstance && isConnected) {
-      socketInstance.emit('streamline');
+      socketInstance.emit('stream');
+      socketInstance.emit('route', RouteData.A);
     }
   }, [isConnected, socketInstance]);
-
-  useEffect(() => {
-    if (socketInstance && isConnected) {
-      socketInstance.emit('route', selectedRoute);
-    }
-  }, [isConnected, socketInstance, selectedRoute]);
 
   const trainList: TrainMap = useMemo(
     () => (onlySelected ? {
@@ -83,6 +77,13 @@ function App() {
     } : trains),
     [onlySelected, selectedRoute, trains]
   );
+
+  const selectRoute = useCallback(
+    (route: RouteData) => {
+      if (socketInstance && isConnected) {
+        socketInstance.emit('route', route);
+      }
+    }, [isConnected, socketInstance]);
 
   return (
     <div className="App">
@@ -103,7 +104,7 @@ function App() {
           {routes?.map((route: RouteData, i: number) => (
             <Route route={route}
                    key={i}
-                   onClick={() => setSelectedRoute(route)} />
+                   onClick={() => selectRoute(route)} />
             ))}
         </span>
         <div>

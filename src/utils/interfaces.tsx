@@ -115,6 +115,8 @@ export interface LineList {
 /* Format for a list of lines */
 export interface TrainMapStream {
   trains: TrainMap;
+  route: Route;
+  stations: Station[];
   updated: Date;
 }
 
