@@ -147,7 +147,7 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
       // (Linter didn't like this coming after the map)
       .filter((train) => (!!getTrainPosition(train)))
       .map(train => ({ train, position: getTrainPosition(train) ! }))),
-    [trains, getTrainPosition, selectedRoute]
+    [trains, getTrainPosition]
   );
 
   return (
