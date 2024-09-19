@@ -22,6 +22,7 @@ function App() {
   const [trains, setTrains] = useState < TrainMap > ({});
   const [selectedRoute, setSelectedRoute] = useState < RouteData > (RouteData.A);
   const [onlySelected, setOnlySelected] = useState < boolean > (true);
+  const [showStations, setShowStations] = useState < boolean > (true);
   const [socketInstance, setSocketInstance] = useState < Socket > ();
   const [isConnected, setIsConnected] = useState < boolean > (false);
 
@@ -87,6 +88,10 @@ function App() {
       }
     }, [isConnected, socketInstance]);
 
+  const stationStyle = {
+    width: showStations ? 350 : 0,
+  }
+
   return (
     <div className="App">
         <h1>SUBWAY</h1>
@@ -100,6 +105,14 @@ function App() {
             />
             Only render selected route
           </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={showStations}
+              onChange={() => setShowStations(!showStations)}
+            />
+            Show stations
+          </label>
         </div>
         <span data-testid="route-list" className="routeList">
           {routes?.map((route: RouteData, i: number) => (
@@ -111,9 +124,10 @@ function App() {
         <div className="container">
           <Map stations={stations}
                selectedRoute={selectedRoute}
+               hasSidebar={showStations}
                trains={trainList}
                autoSize />
-          <div className="stationData">
+          <div className="stationData" style={stationStyle}>
             <div className="heading">
               <h3>Along the {selectedRoute}</h3>
               <span>{updated}</span>

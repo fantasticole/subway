@@ -28,6 +28,7 @@ interface MapParams {
   stations: Station[];
   trains: TrainMap;
   selectedRoute: Route;
+  hasSidebar ? : boolean;
   autoSize ? : boolean;
 }
 
@@ -41,27 +42,34 @@ const DEFAULT_STOP_HEIGHT = 5;
 const DEFAULT_STOP_WIDTH = 5;
 const DEFAULT_BORDER_WIDTH = 10;
 
-const getDimensions = (borderWidth: number = DEFAULT_BORDER_WIDTH) => ({
-  width: window.innerWidth - (2 * borderWidth) - 350,
-  height: window.innerHeight - (2 * borderWidth) - 200,
-});
+const getDimensions = (hasSidebar = true, borderWidth: number = DEFAULT_BORDER_WIDTH) => {
+  const width = window.innerWidth - (2 * borderWidth);
+  return {
+    width: hasSidebar ? width - 350 : width,
+    height: window.innerHeight - (2 * borderWidth) - 200,
+  }
+};
 
-function Map({ autoSize, selectedRoute, stations, trains }: MapParams) {
+function Map({ autoSize, selectedRoute, stations, hasSidebar, trains }: MapParams) {
   const [height, setHeight] = useState(autoSize ? getDimensions().height : DEFAULT_MAP_HEIGHT);
-  const [width, setWidth] = useState(autoSize ? getDimensions().width : DEFAULT_MAP_WIDTH);
+  const [width, setWidth] = useState(autoSize ? getDimensions(hasSidebar).width : DEFAULT_MAP_WIDTH);
+
+  const handleResize = useCallback((): void => {
+    const { height, width } = getDimensions(hasSidebar);
+    setHeight(height);
+    setWidth(width);
+  }, [hasSidebar]);
 
   useEffect(() => {
-    function handleResize() {
-      const { height, width } = getDimensions();
-      setHeight(height);
-      setWidth(width);
-    }
-
     if (autoSize) {
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }
-  }, [autoSize]);
+  }, [autoSize, handleResize]);
+
+  useEffect(() => {
+    handleResize();
+  }, [hasSidebar]);
 
   const stopHeight = DEFAULT_STOP_HEIGHT;
   const stopWidth = DEFAULT_STOP_WIDTH;
