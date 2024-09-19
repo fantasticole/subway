@@ -35,6 +35,10 @@ interface MapParams {
   autoSize ? : boolean;
 }
 
+interface MapLinesByRoute {
+  [route: string]: Array < StopMeta[] > ;
+}
+
 const DEFAULT_MAP_HEIGHT = 700;
 const DEFAULT_MAP_WIDTH = 700;
 const DEFAULT_STOP_HEIGHT = 5;
@@ -92,13 +96,8 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
     };
   }, [height, scaleLocation]);
 
-  const trainLines: PathSet = useMemo(
-    () => getRouteLines(trains[selectedRoute] || []),
-    [trains, selectedRoute]
-  );
-
-  const mapLines: Array < StopMeta[] > = useMemo(
-    () => Object.entries(trainLines).map(([pivot, trainLineSet]) => {
+  const getMapLines = useCallback(
+    (pathSet: PathSet): Array < StopMeta[] > => Object.entries(pathSet).map(([pivot, trainLineSet]) => {
       const stops: string[] = Array.from(trainLineSet.keys());
 
       const fromMeta = generateMeta(pivot);
@@ -109,7 +108,19 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
 
       return lines;
     }).flat().filter(line => line !== null),
-    [trainLines, generateMeta]
+    [generateMeta]
+  );
+
+  /* Map of SVG line coordinate for each route in the trainLinesMap */
+  const mapLines: MapLinesByRoute = useMemo(
+    () => Object.entries(trains).reduce((map, [route, trainList]) => {
+      // Get the set of stop IDs and the stops they connect to in the list of trains
+      const pathSet = getRouteLines(trainList);
+      // Turn that set of paths into coordinates to use for SVG lines
+      map[route] = getMapLines(pathSet);
+      return map;
+    }, {} as MapLinesByRoute),
+    [trains, getMapLines]
   );
 
   const stationPlots: StationMeta[] = useMemo(
@@ -139,26 +150,24 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
     [trains, getTrainPosition, selectedRoute]
   );
 
-  const stroke = TrainColorMap[selectedRoute];
-
-  const svgStyle = {
-    stroke,
-    strokeWidth: DEFAULT_STOP_WIDTH,
-  };
-
   return (
     <div data-testid="map"
          className="map"
          style={style}>
       <svg height={style.height} width={style.width}>
-      {mapLines.map(([firstLoc, secondLoc]) => (
-        <line key={firstLoc.id + secondLoc.id}
-              className={firstLoc.id + secondLoc.id}
-              y1={firstLoc.location[0]}
-              x1={firstLoc.location[1]}
-              y2={secondLoc.location[0]}
-              x2={secondLoc.location[1]}
-              style={svgStyle} />
+        {Object.entries(mapLines).map(([route, routeMapLines]) => (
+          routeMapLines.map(([firstLoc, secondLoc]) => (
+            <line key={firstLoc.id + secondLoc.id}
+                  className={firstLoc.id + secondLoc.id}
+                  y1={firstLoc.location[0]}
+                  x1={firstLoc.location[1]}
+                  y2={secondLoc.location[0]}
+                  x2={secondLoc.location[1]}
+                  style={{
+                    stroke: TrainColorMap[route as Route],
+                    strokeWidth: DEFAULT_STOP_WIDTH,
+                  }} />
+            ))
         ))}
       </svg>
       {stationPlots.map((stationMeta: StationMeta) => (
