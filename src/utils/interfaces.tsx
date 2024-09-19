@@ -112,6 +112,12 @@ export interface LineList {
   updated: Date;
 }
 
+/* Format for a list of lines */
+export interface TrainMapStream {
+  trains: TrainMap;
+  updated: Date;
+}
+
 /* Format for a map of routes and their trains */
 export interface TrainMap {
   [route: string]: Train[]

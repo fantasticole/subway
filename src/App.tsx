@@ -2,14 +2,13 @@ import React, { useState, useEffect, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 
 import {
-  fetchCurrentRoutes,
-  fetchLine,
   fetchRoute,
 } from "./utils/subway_apis";
 import {
   Route as RouteData,
   Station as StationData,
   TrainMap,
+  TrainMapStream,
 } from "./utils/interfaces";
 
 import Station from "./Station/Station";
@@ -31,21 +30,10 @@ function App() {
   const [isConnected, setIsConnected] = useState < boolean > (false);
 
   useEffect(() => {
-    fetchLine(onlySelected ? selectedRoute : undefined)
-      .then(line => {
-        if (line) setTrains(line.lines);
-      });
-
-    fetchCurrentRoutes()
-      .then(currentRoutes => {
-        if (currentRoutes) setRoutes(currentRoutes.data);
-      });
-
     // fetch stations along selected route
     fetchRoute(selectedRoute).then(res => {
       if (res) {
         setStations(res.data);
-        setUpdated((res.updated).toString());
         setHighlights(() => (res.data || []).reduce((map, { id }) => {
           map[id] = `train${selectedRoute} highlighted`;
           return map;
@@ -71,7 +59,11 @@ function App() {
     if (socketInstance) {
       const onConnect = () => setIsConnected(true);
       const onDisconnect = () => setIsConnected(false);
-      const onStreamLine = (map: TrainMap) => setTrains(map);
+      const onStreamLine = ({ trains, updated }: TrainMapStream) => {
+        setTrains(trains);
+        setRoutes(Object.keys(trains) as RouteData[]);
+        setUpdated((updated).toString());
+      }
 
       socketInstance.on('connect', onConnect);
       socketInstance.on('disconnect', onDisconnect);
@@ -85,13 +77,6 @@ function App() {
     }
   }, [socketInstance]);
 
-  const trainList: TrainMap = useMemo(
-    () => (onlySelected ? {
-      [selectedRoute]: (trains[selectedRoute] || [])
-    } : trains),
-    [onlySelected, selectedRoute, trains]
-  );
-
   // Stream the selected route if we're connected to the socket
   // Only update if the route changes & the socket is connected
   useEffect(() => {
@@ -99,6 +84,13 @@ function App() {
       socketInstance.emit('streamline');
     }
   }, [isConnected, selectedRoute, socketInstance]);
+
+  const trainList: TrainMap = useMemo(
+    () => (onlySelected ? {
+      [selectedRoute]: (trains[selectedRoute] || [])
+    } : trains),
+    [onlySelected, selectedRoute, trains]
+  );
 
   return (
     <div className="App">
@@ -114,7 +106,7 @@ function App() {
               }
             </>}
         </div>
-        <h2>All routes</h2>
+        <h2>All Current Routes</h2>
         <span data-testid="route-list">
           {routes?.map((route: RouteData, i: number) => (
             <Route route={route}

@@ -175,8 +175,10 @@ def get_this_line(trips):
     return this_line
  
 def refresh_all():
+    global last_updated_time
     [feed.refresh() for feed in NYCTFeeds]
     mta._update()
+    last_updated_time = datetime.now()
 
 def map_feeds(line_id=None):
     feed_map = {}
@@ -264,7 +266,11 @@ def linestream(event):
         while event.is_set():
             count += 1
             refresh_all()
-            update = map_feeds()
+            train_map = map_feeds()
+            update = {
+                'trains': train_map,
+                'updated': format_time(last_updated_time),
+            }
             socketio.emit('streamline', update)
             socketio.sleep(1)
     finally:
