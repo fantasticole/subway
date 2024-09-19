@@ -69,7 +69,7 @@ function Map({ autoSize, selectedRoute, stations, hasSidebar, trains }: MapParam
 
   useEffect(() => {
     handleResize();
-  }, [hasSidebar]);
+  }, [hasSidebar, handleResize]);
 
   const stopHeight = DEFAULT_STOP_HEIGHT;
   const stopWidth = DEFAULT_STOP_WIDTH;
