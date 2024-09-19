@@ -183,17 +183,11 @@ def map_feeds(line_id=None):
 
     if not line_id:
         for feed in NYCTFeeds:
-            keys = list(feed.trip_replacement_periods.keys())
-            extension = []
-            # These keys don't come through on trip_replacement_periods
-            if '6' in keys:
-                extension = ['6X', '7X']
-            elif 'F' in keys:
-                extension = ['FX']
-            all_keys = keys + extension
-            for route in all_keys:
-                filtered_trips = feed.filter_trips(line_id=route)
-                feed_map[route] = get_this_line(filtered_trips)
+            feed_trips = get_this_line(feed.trips)
+            for trip in feed_trips:
+                route = trip['route']
+                feed_map[route] = feed_map.get(route, []) + [trip]
+
     else:
         route = RouteMap[line_id]
         feed = NYCTFeedMap[route]
