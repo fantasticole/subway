@@ -142,7 +142,7 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
   }, [stationPlots])
 
   const trainList: Array < { train: Train;position: Location } > = useMemo(
-    () => ((trains[selectedRoute] || [])
+    () => (Object.values(trains).flat()
       // Filter if we don't have a position for this train
       // (Linter didn't like this coming after the map)
       .filter((train) => (!!getTrainPosition(train)))
