@@ -29,7 +29,6 @@ export interface StationMeta {
   // station name, e.g. "Bedford Av"
   name: string;
   stops: Stops;
-  incoming ? : NextStop[] | undefined;
 }
 
 /* Summary data about a subway station */

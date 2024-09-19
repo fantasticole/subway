@@ -4,7 +4,6 @@ import { calculateLatitude, calculateLongitude, getRouteLines } from "../utils/s
 import {
   AllStationsMap,
   Location,
-  NextStop,
   PathSet,
   Route,
   TrainMap,
@@ -115,17 +114,12 @@ function Map({ highlights, autoSize, selectedRoute, trains }: MapParams) {
 
   const stationPlots: StationMeta[] = useMemo(
     () => Object.values(AllStationsMap).map(station => {
-      const stationStops = Object.keys(station.stops);
-      const stops = (trains[selectedRoute] || []).map(({ next_stop, route, trip_id }: Train) => ({ ...next_stop, route, trip_id } as NextStop));
-      const incomingTrains = stops.filter(({ stop_id }) => (stop_id === station.id || stationStops.includes(stop_id)));
-
       return {
         ...station,
         location: scaleLocation(station.location, true),
-        incoming: incomingTrains,
       };
     }),
-    [trains, scaleLocation, selectedRoute]
+    [scaleLocation]
   );
 
   const getTrainPosition = useCallback(({ next_stop }: Train): Location | undefined => {
