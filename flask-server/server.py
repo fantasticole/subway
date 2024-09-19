@@ -84,6 +84,7 @@ last_updated_time = datetime.now()
 stations_json = json.load(open('../src/utils/allStations.json', encoding='utf-8'))
 mta = Mtapi(NYCTFeeds)
 thread = None
+selected_route = None
 # Thread events signal a thread (loop) when it should stop and start
 thread_event = Event()
 # Thread locks are synchronization mechanisms that allow multiple threads to access a shared resource safely
@@ -277,10 +278,10 @@ def disconnected():
             thread_event.clear()
             thread.join()
 
-@socketio.on('stations')
-def on_stations(route_id):
-    stations = format_stations(mta.get_by_route(route_id))
-    emit('stations', stations)
+@socketio.on('route')
+def on_route(route_id):
+    global selected_route
+    selected_route = route_id
 
 def linestream(event):
     global thread
@@ -294,6 +295,9 @@ def linestream(event):
                 'trains': train_map,
                 'updated': format_time(last_updated_time),
             }
+            stations = format_stations(mta.get_by_route(selected_route))
+
+            socketio.emit('stations', stations)
             socketio.emit('streamline', update)
             socketio.sleep(1)
     finally:

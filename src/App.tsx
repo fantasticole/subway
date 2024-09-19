@@ -73,7 +73,7 @@ function App() {
 
   useEffect(() => {
     if (socketInstance && isConnected) {
-      socketInstance.emit('stations', selectedRoute);
+      socketInstance.emit('route', selectedRoute);
     }
   }, [isConnected, socketInstance, selectedRoute]);
 
