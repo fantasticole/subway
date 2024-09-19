@@ -1,3 +1,11 @@
+https://github.com/fantasticole/subway.git
+# Running the server
+
+Navigate to the server folder [`/subway/flask-server`]
+
+### `source venv/bin/activate`
+### `python3 server.py`
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
