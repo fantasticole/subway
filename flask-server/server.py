@@ -175,29 +175,25 @@ def get_this_line(trips):
 
     return this_line
 
-def format_stations(stations):
-    station_list = []
+def format_station(station):
+    formatted = {
+        'N': [
+            {'route': arrival['route'],
+            'time': format_time(arrival['time']),} for arrival in station['N']
+        ],
+        'S': [
+            {'route': arrival['route'],
+            'time': format_time(arrival['time']),} for arrival in station['S']
+        ],
+        'id': station['id'],
+        'last_update': format_time(station['last_update']),
+        'location': station['location'],
+        'name': station['name'],
+        'routes': station['routes'],
+        'stops': station['stops'],
+    }
 
-    for station in stations:
-        formatted = {
-            'N': [
-                {'route': arrival['route'],
-                'time': format_time(arrival['time']),} for arrival in station['N']
-            ],
-            'S': [
-                {'route': arrival['route'],
-                'time': format_time(arrival['time']),} for arrival in station['S']
-            ],
-            'id': station['id'],
-            'last_update': format_time(station['last_update']),
-            'location': station['location'],
-            'name': station['name'],
-            'routes': station['routes'],
-            'stops': station['stops'],
-        }
-        station_list.append(formatted)
-
-    return station_list
+    return formatted
  
 def refresh_all():
     global last_updated_time
@@ -291,13 +287,14 @@ def linestream(event):
             count += 1
             refresh_all()
             train_map = map_feeds()
-            stations = []
+            stations = {}
             if len(selected_routes) > 0:
                 for route in selected_routes:
-                    stations = format_stations(mta.get_by_route(route))
+                    for station in mta.get_by_route(route):
+                        stations[station['id']] = format_station(station)
             update = {
                 'trains': train_map,
-                'stations': stations,
+                'stations': list(stations.values()),
                 'updated': format_time(last_updated_time),
             }
 

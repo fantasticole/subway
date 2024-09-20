@@ -141,7 +141,7 @@ function App() {
                autoSize />
           <div className="stationData" style={stationStyle}>
             <div className="heading">
-              <h3>Along the {selectedRoutes}</h3>
+              <h3>Along the {selectedRoutes.join(", ")}</h3>
               <span>{updated}</span>
             </div>
             <span data-testid="station-list" className="stations">
