@@ -95,6 +95,11 @@ function App() {
       }
     }, [isConnected, socketInstance, selectedRoutes]);
 
+  const fadeRoute = useCallback(
+    (route: RouteData): boolean => (onlySelected && !selectedRoutes.includes(route)),
+    [onlySelected, selectedRoutes]
+  );
+
   const stationStyle = {
     width: showStations ? 350 : 0,
   }
@@ -125,6 +130,7 @@ function App() {
           {routes?.map((route: RouteData, i: number) => (
             <Route route={route}
                    key={i}
+                   faded={fadeRoute(route)}
                    onClick={() => setRouteSelection(route)} />
             ))}
         </span>

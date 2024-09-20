@@ -10,19 +10,22 @@ import './Route.css';
 
 interface RouteParams {
   route: RouteData;
+  faded ? : boolean;
   onClick ? : (event: React.MouseEvent < HTMLButtonElement > ) => void;
 }
 
-function Route({ route, onClick }: RouteParams) {
+function Route({ route, onClick, faded }: RouteParams) {
   const style = {
     backgroundColor: TrainColorMap[route],
     color: BlackFontRoutes.includes(route) ? "#000" : "#fff",
   };
 
+  const fadedClass = faded ? 'faded' : '';
+
   if (onClick) {
     return (
       <button data-testid="route"
-              className="route"
+              className={"route " + fadedClass}
               type="button"
               onClick={onClick}
               style={style}>
@@ -32,7 +35,7 @@ function Route({ route, onClick }: RouteParams) {
   }
   return (
     <span data-testid="route"
-          className="route"
+          className={"route " + fadedClass}
           style={style}>
       <span data-testid="route-name" >{route}</span>
     </span>

@@ -8,8 +8,13 @@
   height: 2.2em;
   justify-content: center;
   margin: 5px;
+  opacity: 1;
   text-align: center;
   width: 2.2em;
+
+  &+.faded {
+    opacity: 0.5;
+  }
 }
 
 button.route {
