@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 
 import Station from './Station';
 
-import { MOCK_L_STATION } from '../utils/mock_data';
+import { MOCK_L_STATION } from '../utils/mockData';
 
 describe('stations along route', () => {
 	let station: HTMLElement;

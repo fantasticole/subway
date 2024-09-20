@@ -6,7 +6,7 @@ import { describe, expect, test } from '@jest/globals';
 import { Socket } from "socket.io-client";
 
 import { Route, NextStop } from "../utils/interfaces";
-import { MOCK_TRAIN } from '../utils/mock_data';
+import { MOCK_TRAIN } from '../utils/mockData';
 import allStations from "../utils/allStations.json";
 
 import Map from './Map';

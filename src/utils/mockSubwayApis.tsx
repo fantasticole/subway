@@ -5,7 +5,7 @@ import {
   MOCK_STATION_LIST,
   MOCK_STATIONS_RESPONSE,
   MOCK_TRAIN,
-} from './mock_data';
+} from './mockData';
 
 const mockSubwayApis = (inputUrl: string | URL | Request) => {
   const url = inputUrl as string;

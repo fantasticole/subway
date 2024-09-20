@@ -11,8 +11,8 @@ import {
   MOCK_G_STATION,
   MOCK_ROUTE_LIST,
   MOCK_STATION_LIST,
-} from './utils/mock_data';
-import mockSubwayApis from './utils/mock_subway_apis';
+} from './utils/mockData';
+import mockSubwayApis from './utils/mockSubwayApis';
 
 beforeEach(() => {
   const spy = jest.spyOn(global, 'fetch').mockImplementation(mockSubwayApis);
