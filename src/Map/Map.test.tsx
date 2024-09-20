@@ -18,6 +18,7 @@ const MOCK_LINE_MAP = {
 describe('Map', () => {
 	beforeEach(async () => {
 		await waitFor(() => render(<Map stations={[]}
+																		headerHeight={100}
 																		trains={MOCK_LINE_MAP} />));
 	});
 

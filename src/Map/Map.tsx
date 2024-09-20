@@ -29,6 +29,7 @@ interface MapParams {
   trains: TrainMap;
   hasSidebar ? : boolean;
   autoSize ? : boolean;
+  headerHeight: number;
 }
 
 interface MapLinesByRoute {
@@ -39,25 +40,25 @@ const DEFAULT_MAP_HEIGHT = 700;
 const DEFAULT_MAP_WIDTH = 700;
 const DEFAULT_STOP_HEIGHT = 5;
 const DEFAULT_STOP_WIDTH = 5;
-const DEFAULT_BORDER_WIDTH = 10;
+const DEFAULT_BORDER_WIDTH = 25;
 
-const getDimensions = (hasSidebar = true, borderWidth: number = DEFAULT_BORDER_WIDTH) => {
-  const width = window.innerWidth - (2 * borderWidth);
-  return {
-    width: hasSidebar ? width - 350 : width,
-    height: window.innerHeight - (2 * borderWidth) - 200,
-  }
-};
+function Map({ autoSize, stations, hasSidebar, headerHeight, trains }: MapParams) {
+  const getDimensions = useCallback((borderWidth: number = DEFAULT_BORDER_WIDTH) => {
+    const width = window.innerWidth - (2 * borderWidth);
+    return {
+      width: hasSidebar ? width - 350 : width,
+      height: window.innerHeight - (2 * borderWidth) - headerHeight,
+    }
+  }, [hasSidebar, headerHeight]);
 
-function Map({ autoSize, stations, hasSidebar, trains }: MapParams) {
   const [height, setHeight] = useState(autoSize ? getDimensions().height : DEFAULT_MAP_HEIGHT);
-  const [width, setWidth] = useState(autoSize ? getDimensions(hasSidebar).width : DEFAULT_MAP_WIDTH);
+  const [width, setWidth] = useState(autoSize ? getDimensions().width : DEFAULT_MAP_WIDTH);
 
   const handleResize = useCallback((): void => {
-    const { height, width } = getDimensions(hasSidebar);
+    const { height, width } = getDimensions();
     setHeight(height);
     setWidth(width);
-  }, [hasSidebar]);
+  }, [getDimensions]);
 
   useEffect(() => {
     if (autoSize) {

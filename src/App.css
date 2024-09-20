@@ -1,21 +1,26 @@
-h1 {
-  background: #000;
-  color: #fff;
-  margin: 0;
-  padding: 0.5em 0.3em;
-}
+.header {
+  border-bottom: 1px solid #000;
 
-h2 {
-  display: inline-block;
-  margin-right: 0.5em;
-}
+  h1 {
+    background: #000;
+    color: #fff;
+    margin: 0;
+    padding: 0.5em 0.3em;
+  }
 
-.checkbox {
-  display: inline-block;
-}
+  h2 {
+    display: inline-block;
+    margin: 0.5em;
+  }
 
-.routeList {
-  display: block;
+  .checkbox {
+    display: inline-block;
+  }
+
+  .routeList {
+    display: block;
+    margin: 0 calc(0.5em - 5px) 0.5em;
+  }
 }
 
 .container {
@@ -25,7 +30,7 @@ h2 {
   .stationData {
     overflow: hidden;
 
-    .heading {
+    .stationDataHeader {
       background: #000;
       color: #fff;
       display: flex;
@@ -45,7 +50,7 @@ h2 {
   .stations {
     display: flex;
     flex-wrap: wrap;
+    max-height: 100%;
     overflow: scroll;
-    max-height: calc(100vh - 233px);
   }
 }

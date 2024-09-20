@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
 import {
@@ -25,6 +25,7 @@ function App() {
   const [showStations, setShowStations] = useState < boolean > (true);
   const [socketInstance, setSocketInstance] = useState < Socket > ();
   const [isConnected, setIsConnected] = useState < boolean > (false);
+  let headerRef = useRef < HTMLDivElement > (null);
 
   // Only run once to create socket
   useEffect(() => {
@@ -100,47 +101,56 @@ function App() {
     [onlySelected, selectedRoutes]
   );
 
+  const getHeaderHeight = useCallback(
+    (): number => (headerRef.current ? headerRef.current.offsetHeight : 200),
+    [headerRef]
+  );
+
   const stationStyle = {
     width: showStations ? 350 : 0,
+    height: `calc(100vh - ${getHeaderHeight()}px)`,
   }
 
   return (
     <div className="App">
-        <h1>SUBWAY</h1>
-        <h2>All Current Routes</h2>
-        <div className="checkbox">
-          <label>
-            <input
-              type="checkbox"
-              checked={onlySelected}
-              onChange={() => setOnlySelected(!onlySelected)}
-            />
-            Only render selected route
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={showStations}
-              onChange={() => setShowStations(!showStations)}
-            />
-            Show stations
-          </label>
+        <div className="header" ref={headerRef}>
+          <h1>SUBWAY</h1>
+          <h2>All Current Routes</h2>
+          <div className="checkbox">
+            <label>
+              <input
+                type="checkbox"
+                checked={onlySelected}
+                onChange={() => setOnlySelected(!onlySelected)}
+              />
+              Only render selected route
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={showStations}
+                onChange={() => setShowStations(!showStations)}
+              />
+              Show stations
+            </label>
+          </div>
+          <span data-testid="route-list" className="routeList">
+            {routes?.map((route: RouteData, i: number) => (
+              <Route route={route}
+                     key={i}
+                     faded={fadeRoute(route)}
+                     onClick={() => setRouteSelection(route)} />
+              ))}
+          </span>
         </div>
-        <span data-testid="route-list" className="routeList">
-          {routes?.map((route: RouteData, i: number) => (
-            <Route route={route}
-                   key={i}
-                   faded={fadeRoute(route)}
-                   onClick={() => setRouteSelection(route)} />
-            ))}
-        </span>
         <div className="container">
           <Map stations={stations}
                hasSidebar={showStations}
+               headerHeight={getHeaderHeight()}
                trains={trainList}
                autoSize />
           <div className="stationData" style={stationStyle}>
-            <div className="heading">
+            <div className="stationDataHeader">
               <h3>Along the {selectedRoutes.join(", ")}</h3>
               <span>{updated}</span>
             </div>
