@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState, useCallback } from "react";
 
-import { AllStationsMap, calculateLatitude, calculateLongitude, getRouteLines } from "../utils/stationData";
+import { AllStationsMap, generateCalculators, getRouteLines } from "../utils/stationData";
 import {
   Location,
   PathSet,
@@ -24,11 +24,12 @@ type StopMeta = {
 }
 
 interface MapParams {
+  autoSize ? : boolean;
+  hasSidebar ? : boolean;
+  headerHeight: number;
+  includeSI ? : boolean;
   stations: Station[];
   trains: TrainMap;
-  hasSidebar ? : boolean;
-  autoSize ? : boolean;
-  headerHeight: number;
 }
 
 interface MapLinesByRoute {
@@ -41,7 +42,14 @@ const DEFAULT_STOP_HEIGHT = 5;
 const DEFAULT_STOP_WIDTH = 5;
 const DEFAULT_BORDER_WIDTH = 25;
 
-function Map({ autoSize, stations, hasSidebar, headerHeight, trains }: MapParams) {
+function Map({
+  autoSize,
+  hasSidebar,
+  headerHeight,
+  includeSI = true,
+  stations,
+  trains
+}: MapParams) {
   const getDimensions = useCallback((borderWidth: number = DEFAULT_BORDER_WIDTH) => {
     const width = window.innerWidth - (2 * borderWidth);
     return {
@@ -79,10 +87,16 @@ function Map({ autoSize, stations, hasSidebar, headerHeight, trains }: MapParams
     borderWidth: DEFAULT_BORDER_WIDTH,
   };
 
+  /* Function factory for detemining Locations */
+  const calculators = useMemo(
+    () => generateCalculators(includeSI),
+    [includeSI]
+  );
+
   const scaleLocation = useCallback(([lat, lon]: Location, offset = false): Location => ([
-    calculateLatitude((offset ? height - stopHeight : height), lat),
-    calculateLongitude((offset ? width - stopWidth : width), lon),
-  ]), [height, stopHeight, width, stopWidth]);
+    calculators.latitude((offset ? height - stopHeight : height), lat),
+    calculators.longitude((offset ? width - stopWidth : width), lon),
+  ]), [height, stopHeight, width, stopWidth, calculators]);
 
   const generateMeta = useCallback((id: string): StopMeta | undefined => {
     let location = (AllStationsMap[id] || {}).location;
