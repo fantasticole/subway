@@ -143,10 +143,15 @@ function Map({ autoSize, selectedRoute, stations, hasSidebar, trains }: MapParam
   const getTrainPosition = useCallback(({ next_stop }: Train): Location | undefined => {
     if (!next_stop) return;
     const { stop_id } = next_stop;
-    const station = stationPlots.find(({ id }) => id === stop_id);
-    if (!station) return;
+    let station = stationPlots.find(({ id }) => id === stop_id);
+    if (!station) {
+      station = stationPlots.find(({ stops }) => !!stops[stop_id]);
+      if (!station) return;
+      const stopLocation = station.stops[stop_id];
+      return scaleLocation(stopLocation, true);
+    }
     return station.location;
-  }, [stationPlots])
+  }, [stationPlots, scaleLocation])
 
   const getClassName = useCallback((stationId: string): string => {
     const station = stations.find(({ id }) => id === stationId);
