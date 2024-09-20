@@ -20,7 +20,7 @@ function App() {
   const [routes, setRoutes] = useState < RouteData[] > ([]);
   const [stations, setStations] = useState < StationData[] > ([]);
   const [trains, setTrains] = useState < TrainMap > ({});
-  const [selectedRoute, setSelectedRoute] = useState < RouteData > (RouteData.A);
+  const [selectedRoutes, setSelectedRoutes] = useState < RouteData[] > ([RouteData.A]);
   const [onlySelected, setOnlySelected] = useState < boolean > (true);
   const [showStations, setShowStations] = useState < boolean > (true);
   const [socketInstance, setSocketInstance] = useState < Socket > ();
@@ -43,14 +43,13 @@ function App() {
     if (socketInstance) {
       const onConnect = () => setIsConnected(true);
       const onDisconnect = () => setIsConnected(false);
-      const onStream = ({ trains, updated, route, stations }: TrainMapStream) => {
+      const onStream = ({ trains, updated, stations }: TrainMapStream) => {
         setTrains(trains);
         setRoutes(Object.keys(trains) as RouteData[]);
         const date = new Date(updated).toTimeString();
         const time = date.split(" ")[0];
         setUpdated(time);
         setStations(stations);
-        setSelectedRoute(route);
       }
 
       socketInstance.on('connect', onConnect);
@@ -70,23 +69,31 @@ function App() {
   useEffect(() => {
     if (socketInstance && isConnected) {
       socketInstance.emit('stream');
-      socketInstance.emit('route', RouteData.A);
+      socketInstance.emit('route', [RouteData.A]);
     }
   }, [isConnected, socketInstance]);
 
   const trainList: TrainMap = useMemo(
-    () => (onlySelected ? {
-      [selectedRoute]: (trains[selectedRoute] || [])
-    } : trains),
-    [onlySelected, selectedRoute, trains]
+    () => (onlySelected ? selectedRoutes.reduce((map, route) => {
+      map[route] = (trains[route] || []);
+      return map;
+    }, {} as TrainMap) : trains),
+    [onlySelected, selectedRoutes, trains]
   );
 
-  const selectRoute = useCallback(
+  const setRouteSelection = useCallback(
     (route: RouteData) => {
       if (socketInstance && isConnected) {
-        socketInstance.emit('route', route);
+        let updatedRoutes = [...selectedRoutes];
+        if (selectedRoutes.includes(route)) {
+          updatedRoutes.splice(updatedRoutes.indexOf(route), 1);
+        } else {
+          updatedRoutes = [...selectedRoutes, route];
+        }
+        setSelectedRoutes(updatedRoutes);
+        socketInstance.emit('route', updatedRoutes);
       }
-    }, [isConnected, socketInstance]);
+    }, [isConnected, socketInstance, selectedRoutes]);
 
   const stationStyle = {
     width: showStations ? 350 : 0,
@@ -118,18 +125,17 @@ function App() {
           {routes?.map((route: RouteData, i: number) => (
             <Route route={route}
                    key={i}
-                   onClick={() => selectRoute(route)} />
+                   onClick={() => setRouteSelection(route)} />
             ))}
         </span>
         <div className="container">
           <Map stations={stations}
-               selectedRoute={selectedRoute}
                hasSidebar={showStations}
                trains={trainList}
                autoSize />
           <div className="stationData" style={stationStyle}>
             <div className="heading">
-              <h3>Along the {selectedRoute}</h3>
+              <h3>Along the {selectedRoutes}</h3>
               <span>{updated}</span>
             </div>
             <span data-testid="station-list" className="stations">

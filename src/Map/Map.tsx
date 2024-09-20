@@ -27,7 +27,6 @@ type StopMeta = {
 interface MapParams {
   stations: Station[];
   trains: TrainMap;
-  selectedRoute: Route;
   hasSidebar ? : boolean;
   autoSize ? : boolean;
 }
@@ -50,7 +49,7 @@ const getDimensions = (hasSidebar = true, borderWidth: number = DEFAULT_BORDER_W
   }
 };
 
-function Map({ autoSize, selectedRoute, stations, hasSidebar, trains }: MapParams) {
+function Map({ autoSize, stations, hasSidebar, trains }: MapParams) {
   const [height, setHeight] = useState(autoSize ? getDimensions().height : DEFAULT_MAP_HEIGHT);
   const [width, setWidth] = useState(autoSize ? getDimensions(hasSidebar).width : DEFAULT_MAP_WIDTH);
 
@@ -153,11 +152,6 @@ function Map({ autoSize, selectedRoute, stations, hasSidebar, trains }: MapParam
     return station.location;
   }, [stationPlots, scaleLocation])
 
-  const getClassName = useCallback((stationId: string): string => {
-    const station = stations.find(({ id }) => id === stationId);
-    return station ? `train${selectedRoute} highlighted` : '';
-  }, [stations, selectedRoute])
-
   const trainList: Array < { train: Train;position: Location } > = useMemo(
     () => (Object.values(trains).flat()
       // Filter if we don't have a position for this train
@@ -193,7 +187,7 @@ function Map({ autoSize, selectedRoute, stations, hasSidebar, trains }: MapParam
               height= {stopHeight}
               width= {stopWidth}
               data-testid="stop"
-              highlightClass={getClassName(stationMeta.id)} />
+              highlightClass={''} />
         ))}
       {trainList.map(({train, position}, i) => (
         // include index in key because sometimes the same trip id comes through multiple times

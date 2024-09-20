@@ -18,8 +18,7 @@ const MOCK_LINE_MAP = {
 describe('Map', () => {
 	beforeEach(async () => {
 		await waitFor(() => render(<Map stations={[]}
-																		trains={MOCK_LINE_MAP}
-																		selectedRoute={Route.A} />));
+																		trains={MOCK_LINE_MAP} />));
 	});
 
 	test('renders map', async () => {
