@@ -260,13 +260,13 @@ async def get_arrivals(stations):
 @socketio.on('connect')
 def connected():
     # event listener when client connects to the server
-    print("request.sid ", request.sid)
+    print('request.sid ', request.sid)
     print('client has connected')
 
 @socketio.on('disconnect')
 def disconnected():
     # event listener when client disconnects from the server
-    print("request.sid ", request.sid)
+    print('request.sid ', request.sid)
     print('client has disconnected')
     # if there is a thread, signal for it to stop
     with thread_lock:
