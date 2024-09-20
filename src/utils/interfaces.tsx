@@ -1,5 +1,3 @@
-import allStations from "./allStations.json";
-
 /* Data about what time a route stops at a station */
 export interface Stop {
   // train name string, e.g. "L"
@@ -234,16 +232,3 @@ export const BlackFontRoutes = [
   Route.R,
   Route.W,
 ];
-
-/* Convert allStations.json in a StationsMap */
-export const AllStationsMap: StationMap = Object.entries(allStations).reduce((map, [id, meta]) => {
-  map[id] = {
-    ...meta,
-    location: meta.location as Location,
-    stops: Object.entries(meta.stops).reduce((stationStops, [id, loc]) => {
-      stationStops[id] = loc as Location;
-      return stationStops;
-    }, {} as Stops),
-  };
-  return map;
-}, {} as StationMap);

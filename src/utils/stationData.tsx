@@ -1,5 +1,5 @@
 import allStations from "./allStations.json";
-import { PathSet, Train, TrainStop } from "./interfaces";
+import { PathSet, Train, TrainStop, StationMap, Location, Stops } from "./interfaces";
 
 // Calculated via getStationEdges
 /* Lowest latitude from allStations.json */
@@ -65,3 +65,16 @@ export function getRouteLines(trains: Train[]): PathSet {
 	});
 	return pathSet;
 }
+
+/* Convert allStations.json in a StationsMap */
+export const AllStationsMap: StationMap = Object.entries(allStations).reduce((map, [id, meta]) => {
+	map[id] = {
+		...meta,
+		location: meta.location as Location,
+		stops: Object.entries(meta.stops).reduce((stationStops, [id, loc]) => {
+			stationStops[id] = loc as Location;
+			return stationStops;
+		}, {} as Stops),
+	};
+	return map;
+}, {} as StationMap);
