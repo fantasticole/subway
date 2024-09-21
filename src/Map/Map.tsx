@@ -27,7 +27,7 @@ interface MapParams {
   autoSize ? : boolean;
   hasSidebar ? : boolean;
   headerHeight: number;
-  includeSI ? : boolean;
+  includeStatenIsland: boolean;
   stations: Station[];
   trains: TrainMap;
 }
@@ -46,7 +46,7 @@ function Map({
   autoSize,
   hasSidebar,
   headerHeight,
-  includeSI = true,
+  includeStatenIsland,
   stations,
   trains
 }: MapParams) {
@@ -89,8 +89,8 @@ function Map({
 
   /* Function factory for detemining Locations */
   const calculators = useMemo(
-    () => generateCalculators(includeSI),
-    [includeSI]
+    () => generateCalculators(includeStatenIsland),
+    [includeStatenIsland]
   );
 
   const scaleLocation = useCallback(([lat, lon]: Location, offset = false): Location => ([

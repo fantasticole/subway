@@ -171,6 +171,12 @@ export enum Route {
     Z = "Z",
 }
 
+export const StatenIslandRoutes = [
+  Route.SI,
+  Route.SIR,
+  Route.SS,
+];
+
 /* All route icon colors */
 export enum Color {
   BLUE = "#0039A6", // A, C, E

@@ -19,6 +19,7 @@ describe('Map', () => {
 	beforeEach(async () => {
 		await waitFor(() => render(<Map stations={[]}
 																		headerHeight={100}
+																		includeStatenIsland={true}
 																		trains={MOCK_LINE_MAP} />));
 	});
 

@@ -3,6 +3,7 @@ import { io, Socket } from "socket.io-client";
 
 import {
   Route as RouteData,
+  StatenIslandRoutes,
   Station as StationData,
   TrainMap,
   TrainMapStream,
@@ -23,6 +24,7 @@ function App() {
   const [selectedRoutes, setSelectedRoutes] = useState < RouteData[] > ([RouteData.A]);
   const [onlySelected, setOnlySelected] = useState < boolean > (true);
   const [showStations, setShowStations] = useState < boolean > (true);
+  const [includeStatenIsland, setIncludeStatenIsland] = useState < boolean > (true);
   const [socketInstance, setSocketInstance] = useState < Socket > ();
   const [isConnected, setIsConnected] = useState < boolean > (false);
   let headerRef = useRef < HTMLDivElement > (null);
@@ -82,6 +84,9 @@ function App() {
     [onlySelected, selectedRoutes, trains]
   );
 
+  const filterRoutes =
+    (routes: RouteData[]): RouteData[] => (includeStatenIsland ? routes : routes.filter(route => !StatenIslandRoutes.includes(route)));
+
   const setRouteSelection = useCallback(
     (route: RouteData) => {
       if (socketInstance && isConnected) {
@@ -123,7 +128,7 @@ function App() {
                 checked={onlySelected}
                 onChange={() => setOnlySelected(!onlySelected)}
               />
-              Only render selected route
+              Only render selected route(s)
             </label>
             <label>
               <input
@@ -133,9 +138,17 @@ function App() {
               />
               Show stations
             </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={includeStatenIsland}
+                onChange={() => setIncludeStatenIsland(!includeStatenIsland)}
+              />
+              Include Staten Island
+            </label>
           </div>
           <span data-testid="route-list" className="routeList">
-            {routes?.map((route: RouteData, i: number) => (
+            {filterRoutes(routes).map((route: RouteData, i: number) => (
               <Route route={route}
                      key={i}
                      faded={fadeRoute(route)}
@@ -147,11 +160,12 @@ function App() {
           <Map stations={stations}
                hasSidebar={showStations}
                headerHeight={getHeaderHeight()}
+               includeStatenIsland={includeStatenIsland}
                trains={trainList}
                autoSize />
           <div className="stationData" style={stationStyle}>
             <div className="stationDataHeader">
-              <h3>Along the {selectedRoutes.join(", ")}</h3>
+              <h3>Along the {filterRoutes(selectedRoutes).join(", ")}</h3>
               <span>{updated}</span>
             </div>
             <span data-testid="station-list" className="stations">
