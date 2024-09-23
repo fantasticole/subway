@@ -95,6 +95,7 @@ export interface TrainStop {
 export interface Train {
   dest: string;
   direction: string;
+  location: string;
   last_position_update: string;
   next_stop ? : TrainStop | null;
   nyct_train_id: string;

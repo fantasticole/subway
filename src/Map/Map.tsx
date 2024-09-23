@@ -155,14 +155,13 @@ function Map({
     [scaleLocation]
   );
 
-  const getTrainPosition = useCallback(({ next_stop }: Train): Location | undefined => {
-    if (!next_stop) return;
-    const { stop_id } = next_stop;
-    let station = stationPlots.find(({ id }) => id === stop_id);
+  const getTrainPosition = useCallback(({ location }: Train): Location | undefined => {
+    if (!location) return;
+    let station = stationPlots.find(({ id }) => id === location);
     if (!station) {
-      station = stationPlots.find(({ stops }) => !!stops[stop_id]);
+      station = stationPlots.find(({ stops }) => !!stops[location]);
       if (!station) return;
-      const stopLocation = station.stops[stop_id];
+      const stopLocation = station.stops[location];
       return scaleLocation(stopLocation, true);
     }
     return station.location;

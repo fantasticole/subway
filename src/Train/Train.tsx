@@ -28,13 +28,9 @@ function Train({ train, playAudio, position }: TrainParams) {
 
 	useEffect(() => {
 		if (sameTrain && playAudio) {
-			const prevStop = prevTrain.current!.next_stop || {
-				stop_name: ''
-			};
-			const nextStop = train.next_stop || {
-				stop_name: ''
-			};
-			if (nextStop.stop_name !== prevStop.stop_name) {
+			const prevStop = prevTrain.current!.location;
+			const nextStop = train.location;
+			if (nextStop !== prevStop) {
 				playTransition();
 			}
 		}

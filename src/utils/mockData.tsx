@@ -202,6 +202,7 @@ export const MOCK_TRAIN_STOP: TrainStop = {
 export const MOCK_TRAIN: Train = {
   dest: "Far Rockaway-Mott Av",
   direction: "S",
+  location: "A09",
   last_position_update: "2024-09-04T11:51:09-04:00",
   nyct_train_id: "1A 1039+ 207/FAR",
   route: Route.A,
@@ -213,6 +214,7 @@ export const MOCK_TRAIN: Train = {
 
 export const MOCK_LINE_LIST: LineList = {
   lines: {
-    [Route.A]: [MOCK_TRAIN] },
+    [Route.A]: [MOCK_TRAIN]
+  },
   updated: new Date("2024-05-15T17:29:41-04:00")
 }

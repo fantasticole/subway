@@ -136,10 +136,16 @@ def train_data_from_trip(trip):
     except ValueError:
         trip_string =  'No trip string'
 
+    if trip.location is not None:
+        location = trip.location[:-1]
+    else:
+        location = ''
     return {
         'trip_id': trip.trip_id,
         'route': trip.route_id,
         'direction': trip.direction,
+        # strip last character because it tells the direction (N/S)
+        'location': location,
         # This is the time of the last detected movement of the train.
         # This allows feed consumers to detect the situation when a train
         # stops moving (aka stalled)
