@@ -113,6 +113,11 @@ function App() {
     [headerRef]
   );
 
+  const filteredStations = useMemo(
+    (): StationData[] => (includeStatenIsland ? stations : stations.filter(({ routes }) => !routes.some(route => StatenIslandRoutes.includes(route)))),
+    [stations, includeStatenIsland]
+  );
+
   const stationStyle = {
     width: showStations ? 350 : 0,
     height: `calc(100vh - ${getHeaderHeight()}px)`,
@@ -171,7 +176,7 @@ function App() {
               <span>{updated}</span>
             </div>
             <span data-testid="station-list" className="stations">
-              {stations?.map((station: StationData, i: number) => (
+              {filteredStations.map((station: StationData, i: number) => (
                 <Station station={station} key={i} />
                 ))}
             </span>
