@@ -78,10 +78,12 @@ function App() {
 
   const trainList: TrainMap = useMemo(
     () => (onlySelected ? selectedRoutes.reduce((map, route) => {
-      map[route] = (trains[route] || []);
+      if (includeStatenIsland || !StatenIslandRoutes.includes(route)) {
+        map[route] = (trains[route] || []);
+      }
       return map;
     }, {} as TrainMap) : trains),
-    [onlySelected, selectedRoutes, trains]
+    [onlySelected, selectedRoutes, trains, includeStatenIsland]
   );
 
   const filterRoutes =
