@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 
 import { Train as TrainData, Location } from "../utils/interfaces";
 
@@ -6,18 +6,40 @@ import Route from "../Route/Route";
 
 import './Train.css';
 
+let bass = require('../audio/bass16b.wav');
+
 interface TrainParams {
 	train: TrainData;
+	playAudio: boolean;
 	position: Location;
 }
 
-function Train({ train, position }: TrainParams) {
+function Train({ train, playAudio, position }: TrainParams) {
 	const prevTrain = useRef < TrainData > ();
 
 	const sameTrain: boolean = useMemo(
 		() => (!!prevTrain.current && train.trip_id === prevTrain.current.trip_id),
 		[train, prevTrain]
 	);
+
+	function playTransition() {
+		new Audio(bass).play();
+	}
+
+	useEffect(() => {
+		if (sameTrain && playAudio) {
+			const prevStop = prevTrain.current!.next_stop || {
+				stop_name: ''
+			};
+			const nextStop = train.next_stop || {
+				stop_name: ''
+			};
+			if (nextStop.stop_name !== prevStop.stop_name) {
+				playTransition();
+			}
+		}
+		prevTrain.current = train;
+	}, [train, sameTrain, playAudio]);
 
 	const trainTransition = sameTrain ? 'bottom 1s ease-in-out, left 1s ease-in-out' : '';
 

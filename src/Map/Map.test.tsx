@@ -20,6 +20,7 @@ describe('Map', () => {
 		await waitFor(() => render(<Map stations={[]}
 																		headerHeight={100}
 																		includeStatenIsland={true}
+																		playAudio={false}
 																		trains={MOCK_LINE_MAP} />));
 	});
 

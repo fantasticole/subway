@@ -28,6 +28,7 @@ interface MapParams {
   hasSidebar ? : boolean;
   headerHeight: number;
   includeStatenIsland: boolean;
+  playAudio: boolean;
   stations: Station[];
   trains: TrainMap;
 }
@@ -47,6 +48,7 @@ function Map({
   hasSidebar,
   headerHeight,
   includeStatenIsland,
+  playAudio,
   stations,
   trains
 }: MapParams) {
@@ -207,6 +209,7 @@ function Map({
         // include index in key because sometimes the same trip id comes through multiple times
         <TrainComponent key={train.trip_id + i}
                         train={train}
+                        playAudio={playAudio}
                         position={position} />
         ))}
     </div>

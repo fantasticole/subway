@@ -25,6 +25,7 @@ function App() {
   const [onlySelected, setOnlySelected] = useState < boolean > (true);
   const [showStations, setShowStations] = useState < boolean > (true);
   const [includeStatenIsland, setIncludeStatenIsland] = useState < boolean > (true);
+  const [playAudio, setPlayAudio] = useState < boolean > (false);
   const [socketInstance, setSocketInstance] = useState < Socket > ();
   const [isConnected, setIsConnected] = useState < boolean > (false);
   let headerRef = useRef < HTMLDivElement > (null);
@@ -153,6 +154,14 @@ function App() {
               />
               Include Staten Island
             </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={playAudio}
+                onChange={() => setPlayAudio(!playAudio)}
+              />
+              Play audio
+            </label>
           </div>
           <span data-testid="route-list" className="routeList">
             {filterRoutes(routes).map((route: RouteData, i: number) => (
@@ -169,6 +178,7 @@ function App() {
                headerHeight={getHeaderHeight()}
                includeStatenIsland={includeStatenIsland}
                trains={trainList}
+               playAudio={playAudio}
                autoSize />
           <div className="stationData" style={stationStyle}>
             <div className="stationDataHeader">
