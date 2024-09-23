@@ -6,6 +6,7 @@ from flask_socketio import SocketIO, emit
 from mtapi import Mtapi
 from time import sleep
 from threading import Event, Lock
+from operator import itemgetter
 
 import asyncio
 import os
@@ -209,7 +210,8 @@ def map_feeds(line_id=None):
             feed_trips = get_this_line(feed.trips)
             for trip in feed_trips:
                 route = trip['route']
-                feed_map[route] = feed_map.get(route, []) + [trip]
+                new_list = feed_map.get(route, []) + [trip]
+                feed_map[route] = sorted(new_list, key=itemgetter('trip_id'))
 
     else:
         route = RouteMap[line_id]
