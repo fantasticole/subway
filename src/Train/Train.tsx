@@ -23,7 +23,6 @@ function Train({ train, position }: TrainParams) {
 		         data-testid="Train" />
 		</span>
 	);
-
 }
 
 export default Train;
