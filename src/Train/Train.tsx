@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Train as TrainData, Location } from "../utils/interfaces";
 
@@ -16,26 +16,70 @@ interface TrainParams {
 
 function Train({ train, playAudio, position }: TrainParams) {
 	const prevTrain = useRef < TrainData > ();
+	const arrivalTime = useRef < number > (-1);
+	const timeoutRef = useRef < ReturnType < typeof setTimeout > | null > (null);
+	const [countdown, setCountdown] = useState < boolean > (false);
 
 	const sameTrain: boolean = useMemo(
 		() => (!!prevTrain.current && train.trip_id === prevTrain.current.trip_id),
 		[train, prevTrain]
 	);
 
-	function playTransition() {
-		new Audio(bass).play();
-	}
+	const nextArrivalTime: number = useMemo(
+		() => {
+			const stop = train.stops.find(({ stop_id }) => stop_id === train.location);
+			if (!stop || !stop.arrival) return -1;
+			return new Date(stop.arrival).getTime();
+		}, [train]);
 
 	useEffect(() => {
-		if (sameTrain && playAudio) {
-			const prevStop = prevTrain.current!.location;
-			const nextStop = train.location;
-			if (nextStop !== prevStop) {
-				playTransition();
-			}
+		const now = new Date().getTime();
+		const arrivalChanged = arrivalTime.current !== nextArrivalTime;
+		// If the arrival time has changed and it's still in the future
+		if (arrivalChanged && nextArrivalTime > now) {
+			// Update the arrival time
+			// TODO: If nextArrivalTime changes to be a few seconds later right after the timeout, audio will play again
+			arrivalTime.current = nextArrivalTime;
+			setCountdown(true);
 		}
-		prevTrain.current = train;
-	}, [train, sameTrain, playAudio]);
+	}, [train, nextArrivalTime]);
+
+	const playTransition = useCallback((): void => {
+		timeoutRef.current = null;
+		// TODO: If playAudio changes after setTimeout is set it won't recognize the update
+		if (playAudio) {
+			new Audio(bass).play();
+		}
+	}, [playAudio]);
+
+	const clearCountdown = useCallback((): void => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = null;
+		}
+	}, []);
+
+	const startCountdown = useCallback((): void => {
+		// Check if there is an existing countdown and clear it if so
+		clearCountdown();
+
+		const timeToArrival = arrivalTime.current - new Date().getTime();
+		// Iff the arrival is in the future
+		if (timeToArrival > -1) {
+			// Create a timeout
+			timeoutRef.current = setTimeout(playTransition, timeToArrival);
+		}
+	}, [clearCountdown, playTransition]);
+
+	useEffect(() => {
+		if (countdown) {
+			setCountdown(false);
+			// If the arrivalTime changes, reset the countdown
+			startCountdown();
+		}
+
+		return () => clearCountdown();
+	}, [countdown, startCountdown]);
 
 	const trainTransition = sameTrain ? 'bottom 1s ease-in-out, left 1s ease-in-out' : '';
 
