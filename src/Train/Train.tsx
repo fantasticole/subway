@@ -15,8 +15,9 @@ interface TrainParams {
 }
 
 function Train({ train, playAudio, position }: TrainParams) {
-	const prevTrain = useRef < TrainData > ();
 	const arrivalTime = useRef < number > (-1);
+	const playingAudio = useRef < boolean > (playAudio);
+	const prevTrain = useRef < TrainData > ();
 	const timeoutRef = useRef < ReturnType < typeof setTimeout > | null > (null);
 	const [countdown, setCountdown] = useState < boolean > (false);
 
@@ -44,11 +45,25 @@ function Train({ train, playAudio, position }: TrainParams) {
 		}
 	}, [train, nextArrivalTime]);
 
-	const playTransition = useCallback((): void => {
+	const playSound = useCallback((): void => {
 		timeoutRef.current = null;
-		// TODO: If playAudio changes after setTimeout is set it won't recognize the update
 		if (playAudio) {
 			new Audio(bass).play();
+		}
+	}, [playAudio]);
+
+	const playTransition = (): void => {
+		timeoutRef.current = null;
+		playSound();
+	};
+
+	useEffect(() => {
+		// If playAudio changes after setTimeout is set it won't
+		// recognize the update, so we need to reset the countdown
+		// TODO: One still slips through sometimes??
+		if (playAudio !== playingAudio.current && timeoutRef.current) {
+			playingAudio.current = playAudio;
+			setCountdown(true);
 		}
 	}, [playAudio]);
 
@@ -64,7 +79,7 @@ function Train({ train, playAudio, position }: TrainParams) {
 		clearCountdown();
 
 		const timeToArrival = arrivalTime.current - new Date().getTime();
-		// Iff the arrival is in the future
+		// If the arrival is in the future
 		if (timeToArrival > -1) {
 			// Create a timeout
 			timeoutRef.current = setTimeout(playTransition, timeToArrival);
@@ -77,8 +92,6 @@ function Train({ train, playAudio, position }: TrainParams) {
 			// If the arrivalTime changes, reset the countdown
 			startCountdown();
 		}
-
-		return () => clearCountdown();
 	}, [countdown, startCountdown]);
 
 	const trainTransition = sameTrain ? 'bottom 1s ease-in-out, left 1s ease-in-out' : '';
