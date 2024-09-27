@@ -1,6 +1,7 @@
 import { Route } from "../utils/interfaces";
 
 let bass = require('../audio/bass16b.wav');
+// bass 16b.wav by Logicogonist -- https://freesound.org/s/209943/ -- License: Creative Commons 0
 
 export const TrainAudioMap: Record < Route, string > = {
   [Route.ONE]: bass,
