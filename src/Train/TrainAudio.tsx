@@ -63,8 +63,10 @@ let clarinet_d6 = require('../audio/clarinet_d6.wav');
 // by MTG -- https://freesound.org/s/248668/ -- License: Attribution 3.0
 let acousticstrum = require('../audio/acousticstrum.wav');
 //  valcoustclean.wav by NoiseCollector -- https://freesound.org/s/2841/ -- License: Attribution 3.0
-let tambourene = require('../audio/tambourene.wav');
-//  tambourene.wav by Jimmy60 -- https://freesound.org/s/33368/ -- License: Sampling+
+
+// Available but not in use:
+// let tambourene = require('../audio/tambourene.wav');
+// //  tambourene.wav by Jimmy60 -- https://freesound.org/s/33368/ -- License: Sampling+
 
 export const TrainAudioMap: Record < Route, HTMLAudioElement > = {
   [Route.ONE]: new Audio(cello_a2),
