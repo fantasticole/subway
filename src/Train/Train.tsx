@@ -65,7 +65,7 @@ function Train({ train, playAudio, position }: TrainParams) {
 		coolOff();
 		if (playAudio) {
 			const audio = TrainAudioMap[train.route];
-			new Audio(audio).play();
+			audio.play();
 		}
 	}, [playAudio, train.route]);
 
