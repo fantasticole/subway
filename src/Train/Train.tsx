@@ -22,6 +22,16 @@ function Train({ train, playAudio, position }: TrainParams) {
 	const [countdown, setCountdown] = useState < boolean > (false);
 	const [coolingOff, setCoolingOff] = useState < boolean > (false);
 
+	useEffect(() => {
+		return () => {
+			// On unmount, clear any leftover timeouts
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+				timeoutRef.current = null;
+			}
+		}
+	}, []);
+
 	const sameTrain: boolean = useMemo(
 		() => (!!prevTrain.current && train.trip_id === prevTrain.current.trip_id),
 		[train, prevTrain]
@@ -62,10 +72,11 @@ function Train({ train, playAudio, position }: TrainParams) {
 	useEffect(() => {
 		// If playAudio changes after setTimeout is set it won't
 		// recognize the update, so we need to reset the countdown
-		// TODO: One still slips through sometimes??
-		if (playAudio !== playingAudio.current && timeoutRef.current) {
+		if (playAudio !== playingAudio.current) {
 			playingAudio.current = playAudio;
-			setCountdown(true);
+			if (timeoutRef.current) {
+				setCountdown(true);
+			}
 		}
 	}, [playAudio]);
 
