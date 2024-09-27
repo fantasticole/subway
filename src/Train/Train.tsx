@@ -20,6 +20,7 @@ function Train({ train, playAudio, position }: TrainParams) {
 	const prevTrain = useRef < TrainData > ();
 	const timeoutRef = useRef < ReturnType < typeof setTimeout > | null > (null);
 	const [countdown, setCountdown] = useState < boolean > (false);
+	const [coolingOff, setCoolingOff] = useState < boolean > (false);
 
 	const sameTrain: boolean = useMemo(
 		() => (!!prevTrain.current && train.trip_id === prevTrain.current.trip_id),
@@ -37,16 +38,22 @@ function Train({ train, playAudio, position }: TrainParams) {
 		const now = new Date().getTime();
 		const arrivalChanged = arrivalTime.current !== nextArrivalTime;
 		// If the arrival time has changed and it's still in the future
-		if (arrivalChanged && nextArrivalTime > now) {
+		if (arrivalChanged && nextArrivalTime > now && !coolingOff) {
 			// Update the arrival time
-			// TODO: If nextArrivalTime changes to be a few seconds later right after the timeout, audio will play again
 			arrivalTime.current = nextArrivalTime;
 			setCountdown(true);
 		}
-	}, [train, nextArrivalTime]);
+	}, [train, nextArrivalTime, coolingOff]);
+
+	// Prevent audio from playing twice if train arrival gets delayed a few seconds at the last moment
+	const coolOff = (): void => {
+		setCoolingOff(true);
+		setTimeout(() => setCoolingOff(false), 10000);
+	};
 
 	const playTransition = useCallback((): void => {
 		timeoutRef.current = null;
+		coolOff();
 		if (playAudio) {
 			new Audio(bass).play();
 		}
