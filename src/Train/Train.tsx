@@ -45,17 +45,12 @@ function Train({ train, playAudio, position }: TrainParams) {
 		}
 	}, [train, nextArrivalTime]);
 
-	const playSound = useCallback((): void => {
+	const playTransition = useCallback((): void => {
 		timeoutRef.current = null;
 		if (playAudio) {
 			new Audio(bass).play();
 		}
 	}, [playAudio]);
-
-	const playTransition = (): void => {
-		timeoutRef.current = null;
-		playSound();
-	};
 
 	useEffect(() => {
 		// If playAudio changes after setTimeout is set it won't
