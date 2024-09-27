@@ -4,9 +4,8 @@ import { Train as TrainData, Location } from "../utils/interfaces";
 
 import Route from "../Route/Route";
 
+import { TrainAudioMap } from "./TrainAudio";
 import './Train.css';
-
-let bass = require('../audio/bass16b.wav');
 
 interface TrainParams {
 	train: TrainData;
@@ -65,9 +64,10 @@ function Train({ train, playAudio, position }: TrainParams) {
 		timeoutRef.current = null;
 		coolOff();
 		if (playAudio) {
-			new Audio(bass).play();
+			const audio = TrainAudioMap[train.route];
+			new Audio(audio).play();
 		}
-	}, [playAudio]);
+	}, [playAudio, train.route]);
 
 	useEffect(() => {
 		// If playAudio changes after setTimeout is set it won't
